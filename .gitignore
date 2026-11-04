@@ -1,5 +1,7 @@
-api.js
-node_modules
+node_modules/
 .env
 .env.*
 !.env.example
+*.log
+data/Imagenes/*.tmp
+.DS_Store
