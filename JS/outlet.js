@@ -31,7 +31,7 @@
     //   · página servida por el propio servidor (Render o localhost:3000) → misma dirección
     //   · Live Server (5500) o doble clic → servidor local http://localhost:3000
     // Si cambias de servidor, edita solo API_SERVER.
-    API_SERVER: 'https://pagina-server-h7mf.onrender.com',
+      API_SERVER: 'https://pcw-9gh9.onrender.com',
     get SERVER_URL() {
       const { hostname, port, protocol } = location;
       const esLocal = hostname === 'localhost' || hostname === '127.0.0.1';
