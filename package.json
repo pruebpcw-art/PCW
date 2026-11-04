@@ -1,0 +1,30 @@
+{
+  "name": "pagina-pcw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "outlet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lagosamanda00-alt/lagos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lagosamanda00-alt/lagos/issues"
+  },
+  "homepage": "https://github.com/lagosamanda00-alt/lagos#readme",
+  "dependencies": {
+    "@azure/msal-node": "^7.1.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "axios": "^1.20.0",
+    "dotenv": "^18.0.8",
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0",
+    "jszip": "^3.10.2"
+  }
+}

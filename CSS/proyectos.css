@@ -1,0 +1,697 @@
+/* =====================================================================
+   PCW — CSS/proyectos.css
+   Estilos SOLO de proyectos.html.
+
+   - Todo usa el prefijo "pcwp-" (PC Wizard Proyectos): no choca con
+     style.css, outlet.css ni ninguna otra sección.
+   - Reutiliza variables de CSS/style.css: --font-display, --font-body,
+     --electric, --sky, --ease, --container, etc.
+   - Header, footer, botones (.btn) y "volver arriba" vienen de style.css.
+
+   ÍNDICE
+    1. Variables y fondo de la página
+    2. Hero
+    3. Barra de filtros y buscador
+    4. Tarjetas de proyecto
+    5. Mensaje sin resultados
+    6. Franja "¿Tienes un proyecto en mente?"
+    7. Ventana de detalles y galería de fotos
+    8. Foto ampliada
+    9. Responsive
+   10. Movimiento reducido
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. VARIABLES Y FONDO
+   ===================================================================== */
+.pcwp-page {
+  --pcwp-bg: #0B1220;            /* azul marino profundo */
+  --pcwp-bg-2: #0D1B35;          /* azul oscuro secundario */
+  --pcwp-blue: #007BFF;          /* azul corporativo */
+  --pcwp-sky: #38BDF8;           /* azul celeste */
+  --pcwp-text: #FFFFFF;
+  --pcwp-muted: #B8C9E0;         /* gris azulado */
+  --pcwp-card: #0F1D38;
+  --pcwp-border: rgba(56, 189, 248, 0.22);
+  --pcwp-radius: 14px;
+  background: var(--pcwp-bg);
+}
+
+/* La página de proyectos es oscura en ambos modos (como el prototipo).
+   El header sigue el modo claro / oscuro igual que en index.html. */
+.pcwp {
+  color: var(--pcwp-text);
+  background:
+    linear-gradient(115deg, transparent 0 88%, rgba(0, 123, 255, 0.08) 88% 88.4%, transparent 88.4%),
+    var(--pcwp-bg);
+}
+.pcwp svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pcwp .btn__circle svg { stroke: var(--blue); stroke-width: 2.4; }
+
+
+/* =====================================================================
+   2. HERO
+   ===================================================================== */
+.pcwp-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: clamp(300px, 42vh, 420px);
+  display: flex;
+  align-items: center;
+}
+.pcwp-hero__media,
+.pcwp-hero__overlay,
+.pcwp-hero__lines { position: absolute; inset: 0; }
+
+.pcwp-hero__media { z-index: -3; }
+.pcwp-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% center;
+  animation: pcwpZoom 1.6s var(--ease) both;
+}
+.pcwp-hero__overlay {
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(11, 18, 32, 0.97) 0%, rgba(11, 18, 32, 0.88) 40%, rgba(11, 18, 32, 0.4) 72%, rgba(11, 18, 32, 0.25) 100%),
+    linear-gradient(0deg, var(--pcwp-bg) 0%, transparent 35%);
+}
+.pcwp-hero__lines {                  /* líneas diagonales */
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, transparent 0 84%, rgba(0, 123, 255, 0.85) 84% 84.6%, transparent 84.6%),
+    linear-gradient(115deg, transparent 0 88%, rgba(56, 189, 248, 0.5) 88% 88.3%, transparent 88.3%),
+    linear-gradient(65deg, rgba(0, 87, 184, 0.7) 0 5%, transparent 5%);
+}
+
+.pcwp-hero__content {
+  padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(2.5rem, 6vw, 4rem);
+  animation: pcwpFadeUp 0.8s var(--ease) both;
+}
+.pcwp-eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pcwp-sky);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 6px;
+  background: rgba(0, 123, 255, 0.12);
+}
+.pcwp-hero__title {
+  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.3rem + 3.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--pcwp-text);
+}
+.pcwp-hero__title span { display: block; color: var(--pcwp-sky); }
+.pcwp-hero__text {
+  max-width: 52ch;
+  font-size: clamp(0.98rem, 0.92rem + 0.3vw, 1.12rem);
+  line-height: 1.6;
+  color: var(--pcwp-muted);
+}
+
+
+/* =====================================================================
+   3. BARRA DE FILTROS Y BUSCADOR
+   ===================================================================== */
+.pcwp-gallery {
+  padding-block: clamp(1.5rem, 3vw, 2rem) clamp(3rem, 6vw, 4.5rem);
+}
+.pcwp-gallery:focus { outline: none; }
+
+.pcwp-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pcwp-toolbar > * { min-width: 0; }
+
+.pcwp-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.pcwp-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pcwp-text);
+  background: rgba(13, 27, 53, 0.6);
+  border: 1px solid var(--pcwp-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.pcwp-filter svg { width: 1.1rem; height: 1.1rem; color: var(--pcwp-sky); }
+.pcwp-filter:hover { border-color: var(--pcwp-sky); }
+.pcwp-filter.is-active {
+  background: var(--pcwp-blue);
+  border-color: var(--pcwp-blue);
+  box-shadow: 0 8px 22px -8px rgba(0, 123, 255, 0.8);
+}
+.pcwp-filter.is-active svg { color: #FFFFFF; }
+
+.pcwp-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 300px;
+}
+.pcwp-search svg {
+  position: absolute;
+  left: 0.9rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--pcwp-muted);
+  pointer-events: none;
+}
+.pcwp-search input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.6rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--pcwp-text);
+  background: rgba(13, 27, 53, 0.6);
+  border: 1px solid var(--pcwp-border);
+  border-radius: var(--radius-pill);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pcwp-search input::placeholder { color: var(--pcwp-muted); }
+.pcwp-search input:focus {
+  outline: none;
+  border-color: var(--pcwp-sky);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+
+/* =====================================================================
+   4. TARJETAS DE PROYECTO
+   ===================================================================== */
+.pcwp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 1.6vw, 1.25rem);
+}
+
+.pcwp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--pcwp-card) 0%, var(--pcwp-bg-2) 100%);
+  border: 1px solid var(--pcwp-border);
+  border-radius: var(--pcwp-radius);
+  animation: pcwpFadeUp 0.5s var(--ease) both;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s;
+}
+.pcwp-card:hover,
+.pcwp-card:focus-within {
+  transform: translateY(-5px);
+  border-color: var(--pcwp-sky);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35), 0 18px 40px -12px rgba(0, 123, 255, 0.45);
+}
+
+.pcwp-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--pcwp-bg-2);
+}
+.pcwp-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+.pcwp-card:hover .pcwp-card__media img { transform: scale(1.07); }
+
+/* Etiqueta de categoría sobre la foto */
+.pcwp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: rgba(11, 18, 32, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(4px);
+}
+.pcwp-tag svg { width: 0.95rem; height: 0.95rem; color: var(--pcwp-sky); }
+.pcwp-card__media .pcwp-tag { position: absolute; left: 0.8rem; bottom: 0.8rem; }
+
+.pcwp-card__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem 1.15rem;
+}
+.pcwp-card__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #FFFFFF;
+}
+.pcwp-card__text {
+  padding-right: 3rem;            /* espacio para el botón circular */
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--pcwp-muted);
+}
+
+/* Fecha del proyecto */
+.pcwp-card__date {
+  margin-top: auto;
+  padding-right: 3rem;
+  font-size: 0.78rem;
+  color: var(--pcwp-sky);
+}
+
+/* Botón circular con flecha (toda la tarjeta es clicable a través de él) */
+.pcwp-card__btn {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #FFFFFF;
+  background: var(--pcwp-blue);
+  border-radius: 50%;
+  transition: background 0.25s, transform 0.25s var(--ease);
+}
+.pcwp-card__btn svg { width: 1.1rem; height: 1.1rem; stroke-width: 2.4; }
+.pcwp-card__btn::after {           /* área de clic = tarjeta completa */
+  content: "";
+  position: absolute;
+  inset: -100vmax;
+}
+.pcwp-card:hover .pcwp-card__btn {
+  background: var(--pcwp-sky);
+  transform: translateX(3px);
+}
+.pcwp-card__btn:focus-visible { outline: 3px solid var(--pcwp-sky); outline-offset: 3px; }
+
+
+/* =====================================================================
+   5. MENSAJE SIN RESULTADOS
+   ===================================================================== */
+.pcwp-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--pcwp-muted);
+}
+.pcwp-empty[hidden] { display: none; }
+.pcwp-empty svg { width: 3rem; height: 3rem; opacity: 0.6; }
+.pcwp-empty__btn {
+  padding: 0.6rem 1.3rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--pcwp-sky);
+  border: 1.5px solid var(--pcwp-sky);
+  border-radius: var(--radius-pill);
+  transition: background 0.2s, color 0.2s;
+}
+.pcwp-empty__btn:hover { background: var(--pcwp-sky); color: var(--pcwp-bg); }
+
+
+/* =====================================================================
+   6. FRANJA "¿TIENES UN PROYECTO EN MENTE?"
+   ===================================================================== */
+.pcwp-cta {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2.25rem);
+  background:
+    linear-gradient(115deg, transparent 0 70%, rgba(0, 123, 255, 0.18) 70% 70.5%, transparent 70.5%),
+    linear-gradient(90deg, var(--pcwp-bg-2) 0%, #0F2550 100%);
+  border: 1px solid var(--pcwp-border);
+  border-radius: var(--pcwp-radius);
+}
+.pcwp-cta__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  color: var(--pcwp-sky);
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  border-radius: 50%;
+}
+.pcwp-cta__icon svg { width: 1.6rem; height: 1.6rem; }
+.pcwp-cta__text { flex: 1; }
+.pcwp-cta__text h2 {
+  margin-bottom: 0.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
+  color: #FFFFFF;
+}
+.pcwp-cta__text p { font-size: 0.92rem; color: var(--pcwp-muted); max-width: 70ch; }
+.pcwp-cta__btn { flex-shrink: 0; }
+
+
+/* =====================================================================
+   7. VENTANA DE DETALLES Y GALERÍA DE FOTOS (<dialog>)
+   ===================================================================== */
+.pcwp-modal {
+  width: min(1040px, 100% - 2rem);
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  color: var(--pcwp-text);
+  background: var(--pcwp-bg);
+  border: 1px solid var(--pcwp-border);
+  border-radius: 18px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+  overflow: auto;
+}
+.pcwp-modal[open] { animation: pcwpModalIn 0.3s var(--ease); }
+.pcwp-modal::backdrop { background: rgba(3, 8, 18, 0.75); backdrop-filter: blur(3px); }
+
+.pcwp-modal__bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(11, 18, 32, 0.95);
+  border-bottom: 1px solid var(--pcwp-border);
+}
+.pcwp-modal__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pcwp-sky);
+  border-radius: var(--radius-pill);
+  transition: background 0.2s;
+}
+.pcwp-modal__back:hover { background: rgba(56, 189, 248, 0.1); }
+.pcwp-modal__back svg,
+.pcwp-modal__close svg { width: 1.15rem; height: 1.15rem; }
+.pcwp-modal__close {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  color: var(--pcwp-text);
+  border: 1px solid var(--pcwp-border);
+  border-radius: 50%;
+}
+.pcwp-modal__close:hover { border-color: var(--pcwp-sky); color: var(--pcwp-sky); }
+
+.pcwp-modal__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* Galería: foto grande + miniaturas */
+.pcwp-viewer { display: grid; gap: 0.75rem; align-content: start; }
+.pcwp-viewer__main {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--pcwp-bg-2);
+  border: 1px solid var(--pcwp-border);
+  border-radius: 12px;
+}
+.pcwp-viewer__main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+}
+.pcwp-viewer__nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #FFFFFF;
+  background: rgba(11, 18, 32, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: background 0.2s;
+}
+.pcwp-viewer__nav:hover { background: var(--pcwp-blue); }
+.pcwp-viewer__nav svg { width: 1.1rem; height: 1.1rem; stroke-width: 2.4; }
+.pcwp-viewer__nav--prev { left: 0.6rem; }
+.pcwp-viewer__nav--next { right: 0.6rem; }
+.pcwp-viewer__zoom {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  color: #FFFFFF;
+  background: rgba(11, 18, 32, 0.75);
+  border-radius: var(--radius-pill);
+}
+.pcwp-viewer__zoom svg { width: 0.95rem; height: 0.95rem; }
+.pcwp-viewer__count {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  color: #FFFFFF;
+  background: rgba(11, 18, 32, 0.75);
+  border-radius: var(--radius-pill);
+}
+.pcwp-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: thin;
+}
+.pcwp-thumb {
+  flex: 0 0 auto;
+  width: 5.5rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.pcwp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pcwp-thumb:hover { opacity: 1; }
+.pcwp-thumb[aria-current="true"] { opacity: 1; border-color: var(--pcwp-sky); }
+
+/* Información del proyecto */
+.pcwp-info { display: grid; gap: 1.1rem; align-content: start; }
+.pcwp-info__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  line-height: 1.2;
+  color: #FFFFFF;
+}
+.pcwp-info__desc { color: var(--pcwp-muted); line-height: 1.6; }
+.pcwp-info__date { margin-top: -0.6rem; font-size: 0.85rem; color: var(--pcwp-sky); }
+.pcwp-info__block h3 {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pcwp-sky);
+}
+.pcwp-info__list { display: grid; gap: 0.4rem; }
+.pcwp-info__list li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: 0.92rem;
+  color: var(--pcwp-text);
+}
+.pcwp-info__list li::before {      /* check celeste */
+  content: "";
+  position: absolute;
+  left: 0.2rem;
+  top: 0.45em;
+  width: 0.5rem;
+  height: 0.28rem;
+  border-left: 2px solid var(--pcwp-sky);
+  border-bottom: 2px solid var(--pcwp-sky);
+  transform: rotate(-45deg);
+}
+.pcwp-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.pcwp-chips li {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--pcwp-text);
+  background: rgba(0, 123, 255, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-pill);
+}
+.pcwp-info__result {
+  padding: 0.9rem 1rem;
+  font-size: 0.92rem;
+  color: var(--pcwp-text);
+  background: rgba(56, 189, 248, 0.08);
+  border-left: 3px solid var(--pcwp-sky);
+  border-radius: 8px;
+}
+
+
+/* =====================================================================
+   8. FOTO AMPLIADA
+   ===================================================================== */
+.pcwp-lightbox {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: transparent;
+  border: 0;
+}
+.pcwp-lightbox[open] { display: grid; place-items: center; }
+.pcwp-lightbox::backdrop { background: rgba(3, 8, 18, 0.94); }
+.pcwp-lightbox img {
+  max-width: 100%;
+  max-height: calc(100dvh - 4rem);
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: zoom-out;
+}
+.pcwp-lightbox__close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+}
+.pcwp-lightbox__close svg {
+  width: 1.2rem; height: 1.2rem;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+}
+
+
+/* --- Animaciones --- */
+@keyframes pcwpFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pcwpZoom {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1); }
+}
+@keyframes pcwpModalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+
+/* =====================================================================
+   9. RESPONSIVE
+   4 columnas en computadora · 3 en laptop · 2 en tablet · 1 en celular
+   ===================================================================== */
+@media (hover: none) {
+  .pcwp-card:hover { transform: none; }
+  .pcwp-card:hover .pcwp-card__media img { transform: none; }
+}
+@media (max-width: 1200px) {
+  .pcwp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .pcwp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pcwp-toolbar { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+  .pcwp-search { flex: 1 1 auto; }
+  /* Filtros en una fila deslizable */
+  .pcwp-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0.15rem 2rem 0.4rem 0.15rem;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+            mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+  .pcwp-filters::-webkit-scrollbar { display: none; }
+  .pcwp-filter { flex-shrink: 0; }
+  .pcwp-modal__body { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .pcwp-grid { grid-template-columns: 1fr; }
+  .pcwp-hero__overlay {
+    background: linear-gradient(180deg, rgba(11, 18, 32, 0.8) 0%, rgba(11, 18, 32, 0.95) 100%);
+  }
+  .pcwp-search input { font-size: 16px; }   /* evita el zoom del iPhone */
+  .pcwp-cta { flex-direction: column; align-items: flex-start; }
+  .pcwp-cta__btn { width: 100%; justify-content: space-between; }
+  .pcwp-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 94dvh;
+    margin: auto 0 0;
+    border-radius: 18px 18px 0 0;
+  }
+  .pcwp-thumb { width: 4.5rem; }
+}
+
+
+/* =====================================================================
+   10. MOVIMIENTO REDUCIDO
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .pcwp *,
+  .pcwp *::before,
+  .pcwp *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

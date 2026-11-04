@@ -1,0 +1,636 @@
+/* =====================================================================
+   PCW — CSS/nosotros.css
+   Sección Nosotros (#nosotros) y modal "¿Quiénes somos?".
+
+   - Todo usa el prefijo "pcwn-" (o va dentro de .pcwn): no afecta a
+     otras secciones.
+   - Reutiliza de CSS/style.css: variables de color y fuentes,
+     .section-title, .features / .feature y .btn.
+   - Se carga DESPUÉS de CSS/style.css.
+
+   ÍNDICE
+    1. Sección y fondo decorativo
+    2. Distribución en tres áreas
+    3. Área izquierda: información
+    4. Área central: logotipo
+    5. Área derecha: redes sociales
+    6. Modal "¿Quiénes somos?"
+    7. Modo oscuro
+    8. Responsive
+    9. Movimiento reducido
+   ===================================================================== */
+
+
+/* =====================================================================
+   1. SECCIÓN Y FONDO DECORATIVO
+   ===================================================================== */
+
+/* Contenedor principal de toda la sección Nosotros (#nosotros) */
+.pcwn {
+  position: relative;            /* Establece el contexto de posición para sus elementos absolutos hijos */
+  isolation: isolate;            /* Crea un nuevo contexto de apilamiento (stacking context) para que z-index negativos no se oculten detrás del fondo de la página */
+  overflow: hidden;              /* Oculta cualquier elemento decorativo o imagen que sobrepase los bordes de la sección */
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--gray-light) 100%); /* Fondo suave degradado de blanco a gris claro */
+}
+
+/* Foto de racks arriba a la derecha + franjas diagonales azules */
+/* Capa de fondo decorativa que proyecta líneas y franjas diagonales en tonos azules */
+.pcwn__bg {
+  position: absolute;            /* Se posiciona sobre toda el área de la sección */
+  inset: 0;                      /* Equivale a top: 0; right: 0; bottom: 0; left: 0 (cubre el 100%) */
+  z-index: -1;                   /* Se coloca por detrás del contenido interactivo */
+  pointer-events: none;          /* Evita interferir con los clics y la interacción del usuario */
+  background:
+    /* Primera capa: franja azul eléctrico inclinada a 115 grados */
+    linear-gradient(115deg, transparent 0 60%, rgba(0, 140, 255, 0.85) 60% 61.2%, transparent 61.2% 62.6%, rgba(0, 87, 184, 0.55) 62.6% 63.2%, transparent 63.2%),
+    /* Segunda capa: franja celeste suave más sutil detrás de la anterior */
+    linear-gradient(115deg, transparent 0 56%, rgba(53, 185, 255, 0.35) 56% 56.5%, transparent 56.5%);
+}
+
+/* Pseudo-elemento que añade la fotografía del rack de servidores cortada diagonalmente */
+.pcwn__bg::after {
+  content: "";                   /* Requerido para renderizar el pseudo-elemento */
+  position: absolute;            /* Posicionamiento flotante dentro de la capa de fondo */
+  top: 0;
+  right: 0;
+  width: 46%;                    /* Ocupa el 46% del ancho de la pantalla a la derecha */
+  height: 58%;                   /* Ocupa el 58% de la altura superior */
+  background:
+    /* Degradados para desvanecer suavemente los bordes hacia el fondo */
+    linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 35%),
+    linear-gradient(0deg, var(--gray-light) 0%, rgba(244, 246, 248, 0) 45%),
+    linear-gradient(rgba(3, 27, 61, 0.35), rgba(3, 27, 61, 0.35)),
+    url("../IMG/hero-network.png.png") center / cover no-repeat; /* Imagen del rack de servidores */
+  clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);          /* Recorte poligonal que crea el corte diagonal característico */
+  opacity: 0.9;                  /* Ligera transparencia para integrarse con el fondo */
+}
+
+
+/* =====================================================================
+   2. DISTRIBUCIÓN EN TRES ÁREAS
+   ===================================================================== */
+
+/* Contenedor con CSS Grid que distribuye la sección en 3 columnas: Info, Logo y Redes */
+.pcwn__inner {
+  display: grid;
+  /* Proporciones de las columnas: Información (1.3fr), Logotipo (0.55fr), Redes sociales (1.1fr) */
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.55fr) minmax(0, 1.1fr);
+  grid-template-areas: "info brand social";  /* Nombres de las áreas para colocación intuitiva */
+  align-items: center;                       /* Centra verticalmente los tres bloques */
+  gap: clamp(1.5rem, 3vw, 2.5rem);          /* Espaciado responsivo fluido entre columnas */
+  width: min(1440px, 100% - clamp(2rem, 6vw, 5rem)); /* Ancho fluido con tope máximo en 1440px */
+  margin-inline: auto;                      /* Centra el contenedor horizontalmente en la pantalla */
+}
+
+/* Asignación de cada contenedor a su área nombrada en el grid */
+.pcwn__info   { grid-area: info; }   /* Bloque izquierdo: textos corporativos y botón */
+.pcwn__brand  { grid-area: brand; }  /* Bloque central: logotipo con órbita animada */
+.pcwn__social { grid-area: social; } /* Bloque derecho: panel con tarjetas de redes */
+
+
+/* =====================================================================
+   3. ÁREA IZQUIERDA: INFORMACIÓN
+   ===================================================================== */
+
+/* Párrafo descriptivo introductorio de la empresa */
+.pcwn__desc { 
+  max-width: 54ch;              /* Limita el ancho a ~54 caracteres por línea para una lectura óptima */
+  margin-bottom: 1.75rem;       /* Separación inferior antes de la lista de características */
+}
+
+/* Los tres beneficios en una fila (style.css los apila en 1024 px) */
+/* Lista de características (Experiencia, Atención personalizada, Soluciones) */
+.pcwn .pcwn__features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Distribuye los 3 elementos en columnas de igual ancho */
+  gap: 1rem;                                        /* Separación entre cada característica */
+  margin-bottom: 2rem;                              /* Espacio antes del botón del modal */
+}
+
+/* Botón "¿Quiénes somos?" que abre el diálogo modal */
+.pcwn__btn { 
+  box-shadow: 0 12px 26px rgba(0, 87, 184, 0.38);  /* Sombra azul brillante que eleva visualmente el botón */
+}
+
+
+/* =====================================================================
+   4. ÁREA CENTRAL: LOGOTIPO
+   ===================================================================== */
+
+/* Contenedor del logotipo central que además aloja la órbita animada */
+.pcwn__brand {
+  position: relative;            /* Base para posicionar la órbita de fondo */
+  display: grid;
+  place-items: center;           /* Centra el logo de forma absoluta en el medio */
+  aspect-ratio: 1;               /* Mantiene una proporción cuadrada perfecta 1:1 */
+  max-width: 340px;              /* Ancho máximo para evitar que crezca de forma desproporcionada */
+  justify-self: center;          /* Centra la columna dentro de su celda del grid */
+  width: 100%;                   /* Se ajusta al 100% del espacio disponible hasta su max-width */
+}
+
+/* Estilo para las imágenes del logotipo (modo claro y modo oscuro) */
+.pcwn__brand img {
+  position: relative;
+  width: 92%;                    /* Ocupa el 92% del contenedor para dejar aire alrededor */
+  height: auto;                   /* mantiene la proporción original */
+  object-fit: contain;           /* Evita deformaciones manteniendo la proporción */
+}
+
+/* Oculta por defecto el logo blanco en el tema claro */
+.pcwn__brand .logo-dark { display: none; }
+
+/* Órbita circular decorativa con puntos */
+/* Anillo decorativo circular que gira continuamente alrededor del logo */
+.pcwn__orbit {
+  position: absolute;
+  inset: 4%;                     /* Separado un 4% de los bordes del contenedor */
+  border: 2px solid rgba(0, 140, 255, 0.35); /* Borde azul fino semitransparente */
+  border-left-color: transparent;            /* Deja el lado izquierdo abierto para dar efecto de giro */
+  border-bottom-color: rgba(0, 140, 255, 0.15);
+  border-radius: 50%;                        /* Forma perfectamente circular */
+  animation: pcwnSpin 30s linear infinite;   /* Rotación suave continua de 360 grados en 30 segundos */
+}
+
+/* Puntos o nodos tecnológicos orbitando sobre el anillo */
+.pcwn__orbit::before,
+.pcwn__orbit::after {
+  content: "";                   /* Requerido para mostrar los puntos */
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;            /* Redondos */
+  background: var(--electric);   /* Color azul eléctrico brillante */
+  box-shadow: 0 0 10px rgba(0, 140, 255, 0.7); /* Brillo resplandeciente (glow) */
+}
+/* Posición del primer nodo en la parte superior derecha */
+.pcwn__orbit::before { top: 6%; right: 22%; }
+/* Posición del segundo nodo en la parte inferior izquierda */
+.pcwn__orbit::after  { bottom: 10%; left: 18%; width: 6px; height: 6px; }
+
+
+/* 5. ÁREA DERECHA: REDES SOCIALES*/
+
+/* Tarjeta / contenedor general con efecto Glassmorphism que agrupa las redes sociales */
+.pcwn__social {
+  position: relative;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem); /* Relleno interior adaptable según el ancho */
+  background: rgba(255, 255, 255, 0.88);  /* Fondo blanco translúcido */
+  border: 1px solid rgba(0, 140, 255, 0.12); /* Borde sutil azul */
+  border-radius: 24px;                    /* Esquinas redondeadas modernas */
+  box-shadow: 0 24px 50px -24px rgba(3, 27, 61, 0.35); /* Sombra difuminada elegante */
+  backdrop-filter: blur(6px);             /* Desenfoque del fondo (efecto vidrio esmerilado) */
+  -webkit-backdrop-filter: blur(6px);     /* Compatibilidad de desenfoque para navegadores WebKit/Safari */
+}
+
+/* Título de la sección de redes sociales */
+.pcwn__social-title {
+  position: relative;
+  padding-left: 2.5rem;          /* Espacio a la izquierda para la línea decorativa */
+  font-family: var(--font-display); /* Fuente Sora */
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.55rem); /* Tamaño tipográfico fluido */
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--navy);
+}
+
+/* Línea decorativa azul antes del título de redes */
+.pcwn__social-title::before {      /* rayita azul a la izquierda */
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 1.75rem;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--electric);   /* Azul eléctrico */
+}
+
+/* Palabra destacada dentro del título ("redes") */
+.pcwn__social-title span { color: var(--electric); }
+
+/* Texto descriptivo debajo del título de redes */
+.pcwn__social-text {
+  margin: 0.35rem 0 1.1rem;
+  font-size: 0.9rem;
+}
+
+/* Rejilla de 2 columnas para mostrar las tarjetas de Instagram y Facebook lado a lado */
+.pcwn__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columnas iguales y responsivas */
+  gap: 0.9rem;                                      /* Separación entre tarjetas */
+}
+
+/* --- Tarjeta --- */
+/* Tarjeta individual de red social (Instagram o Facebook) */
+.pcwn-card {
+  --pcwn-accent: var(--electric);          /* Variable local: color de acento por defecto */
+  --pcwn-photo: url("../IMG/Redes.png.png"); /* Variable local: imagen de fondo por defecto */
+  position: relative;
+  isolation: isolate;                      /* Aísla el pseudo-elemento ::before del contenido */
+  display: flex;
+  flex-direction: column;                  /* Distribuye el contenido de arriba hacia abajo */
+  align-items: flex-start;
+  min-height: 100%;                        /* Ambas tarjetas igualan su altura automáticamente */
+  padding: 1.15rem;
+  overflow: hidden;
+  color: var(--white);
+  background: #061E46;                     /* Azul marino oscuro de respaldo */
+  border-radius: 18px;
+  box-shadow: 0 16px 34px -16px rgba(3, 27, 61, 0.6);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease); /* Transición suave en hover */
+}
+
+/* Fondo de la tarjeta con imagen temática y gradiente oscuro superpuesto */
+.pcwn-card::before {               /* foto tecnológica con capa oscura */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;                     /* Se coloca detrás del texto y los botones */
+  background:
+    linear-gradient(160deg, rgba(3, 27, 61, 0.96) 0%, rgba(6, 30, 70, 0.88) 55%, rgba(6, 38, 90, 0.7) 100%),
+    var(--pcwn-photo) center / cover no-repeat;
+  transition: transform 0.6s var(--ease); /* Zoom suave al hacer hover */
+}
+
+/* Variación específica para Instagram: acento rosa/magenta y foto de CCTV */
+.pcwn-card--instagram { --pcwn-accent: #E1306C; --pcwn-photo: url("../IMG/CCTV.png.png"); }
+
+/* Variación específica para Facebook: acento azul oficial */
+.pcwn-card--facebook  { --pcwn-accent: #1877F2; }
+
+/* Efecto de elevación al pasar el cursor o hacer foco con el teclado */
+.pcwn-card:hover,
+.pcwn-card:focus-within {
+  transform: translateY(-5px);    /* Sube 5 píxeles */
+  box-shadow: 0 24px 44px -18px rgba(3, 27, 61, 0.7), 0 0 0 1px rgba(53, 185, 255, 0.35); /* Borde iluminado y sombra */
+}
+
+/* Efecto zoom de la imagen de fondo de la tarjeta al interactuar */
+.pcwn-card:hover::before { transform: scale(1.05); }
+
+/* Contenedor del icono de la red social */
+.pcwn-card__icon {
+  display: grid;
+  place-items: center;           /* Centra el SVG en el contenedor */
+  width: 2.6rem;
+  height: 2.6rem;
+  margin-bottom: 0.8rem;
+  border-radius: 12px;           /* Cuadrado redondeado */
+}
+.pcwn-card__icon svg { width: 58%; height: 58%; fill: var(--white); }
+
+/* Gradiente oficial de Instagram para su icono */
+.pcwn-card--instagram .pcwn-card__icon {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+/* Color azul oficial de Facebook para su icono */
+.pcwn-card--facebook .pcwn-card__icon { background: #1877F2; }
+
+/* Título de la tarjeta ("Síguenos en...") */
+.pcwn-card__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--white);
+}
+/* Nombre de la red destacado con color celeste */
+.pcwn-card__title span { color: var(--sky); }
+
+/* Usuario o handle de la red (@pcwizardcr) */
+.pcwn-card__handle {
+  margin: 0.15rem 0 0.5rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Texto explicativo dentro de la tarjeta */
+.pcwn-card__text {
+  flex: 1;                         /* empuja el botón al fondo */
+  margin-bottom: 1rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Botón de enlace hacia el perfil social */
+.pcwn-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;                  /* Espacio entre el texto y el icono de enlace externo */
+  padding: 0.6rem 1.1rem;
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--pcwn-accent); /* Color de fondo según la red (rosa o azul) */
+  border-radius: var(--radius-pill); /* Bordes redondeados en forma de píldora */
+  white-space: nowrap;           /* Evita que el texto se rompa en dos líneas */
+  transition: filter 0.2s, transform 0.2s;
+}
+.pcwn-card__btn svg {
+  width: 0.95rem; height: 0.95rem;
+  fill: none; stroke: currentColor; stroke-width: 2.2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+/* Efecto hover del botón de la tarjeta: brillo y ligero salto */
+.pcwn-card__btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+
+/* 6. ¿QUIÉNES SOMOS? */
+
+/* Bloquea el desplazamiento de la página mientras el modal está abierto */
+html.pcwn-lock,
+html.pcwn-lock body { overflow: hidden; }
+
+/* Diálogo modal nativo (<dialog>) */
+.pcwn-modal {
+  width: min(900px, 100% - 2rem);   /* Ancho máximo de 900px con margen de 1rem a los lados en pantallas chicas */
+  max-height: calc(100dvh - 2rem);  /* Altura máxima con margen respecto a la pantalla dinámica */
+  padding: 0;                       /* Elimina el relleno por defecto del dialog */
+  overflow: hidden;                 /* Recorta las esquinas redondeadas */
+  background: transparent;          /* Fondo transparente para que el contenedor interno (.pcwn-modal__box) controle el diseño */
+  border: 0;                        /* Quita el borde por defecto del elemento dialog */
+  border-radius: 22px;
+  box-shadow: 0 40px 90px -20px rgba(3, 27, 61, 0.65); /* Gran sombra difusa que resalta el modal sobre la página */
+}
+
+/* Animación de entrada cuando el diálogo tiene el atributo [open] */
+.pcwn-modal[open] { animation: pcwnModalIn 0.35s var(--ease); }
+
+/* Fondo oscuro semitransparente detrás del modal (backdrop) */
+.pcwn-modal::backdrop {
+  background: rgba(3, 27, 61, 0.55);
+  backdrop-filter: blur(3px);       /* Desenfoque de la página de fondo */
+}
+
+/* Caja contenedora interna que organiza el modal en dos columnas: Media e Información */
+.pcwn-modal__box {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr); /* 42% para foto/logo y 100% relativo para texto */
+  max-height: calc(100dvh - 2rem);
+  background: var(--white);
+}
+
+/* Columna izquierda: imagen con capa azul y logotipo */
+.pcwn-modal__media {
+  position: relative;
+  display: grid;
+  place-items: center;           /* Centra el logotipo blanco vertical y horizontalmente */
+  overflow: hidden;
+  background: var(--navy);
+}
+
+/* Fotografía de instalación de redes que cubre toda la columna izquierda */
+.pcwn-modal__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;             /* Cubre todo el espacio sin deformarse */
+}
+
+/* Capa de tinte azul sobre la fotografía para mejorar visibilidad del logo */
+.pcwn-modal__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(3, 27, 61, 0.75), rgba(0, 87, 184, 0.45));
+}
+
+/* Logotipo blanco de PCW centrado en la columna izquierda */
+.pcwn-modal__logo {
+  position: relative;
+  z-index: 1;                    /* Se asegura de estar sobre la capa degradada */
+  width: 82%;
+  height: auto;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45)); /* Sombra para resaltar */
+}
+
+/* Columna derecha: textos (con desplazamiento interno si hace falta) */
+.pcwn-modal__content {
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;              /* Permite scroll vertical independiente si el contenido sobrepasa la pantalla */
+  padding: clamp(1.5rem, 3.5vw, 2.5rem) clamp(1.25rem, 3.5vw, 2.5rem); /* Espaciado interno dinámico */
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--gray-text);
+}
+
+/* Separación entre párrafos consecutivos */
+.pcwn-modal__content > p + p { margin-top: 0.75rem; }
+
+/* Título del modal ("¿Quiénes somos?") */
+.pcwn-modal__title {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  margin-bottom: 1rem;
+  padding-right: 2.5rem;           /* espacio para la X */
+}
+.pcwn-modal__title span { color: var(--blue); }
+
+/* Botón flotante para cerrar el modal ("X") */
+.pcwn-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;                    /* Por encima de todo el contenido del modal */
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--blue);
+  background: rgba(0, 140, 255, 0.1);
+  border-radius: 50%;            /* Botón circular */
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.pcwn-modal__close svg {
+  width: 1.1rem; height: 1.1rem;
+  fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round;
+}
+/* Efecto al pasar el cursor sobre la X: fondo azul, texto blanco y giro de 90° */
+.pcwn-modal__close:hover { background: var(--electric); color: var(--white); transform: rotate(90deg); }
+
+/* Misión, visión y valores */
+/* Lista contenedora de los 3 valores corporativos */
+.pcwn-values {
+  display: grid;
+  gap: 1rem;                     /* Separación entre cada bloque de valor */
+  margin-top: 1.4rem;
+}
+
+/* Elemento individual de valor (Misión, Visión, Valores) */
+.pcwn-value { display: flex; gap: 0.9rem; align-items: flex-start; }
+
+/* Contenedor del icono de cada valor */
+.pcwn-value__icon {
+  flex-shrink: 0;                /* Evita que el icono se comprima si hay mucho texto al lado */
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--electric);
+  background: rgba(0, 140, 255, 0.1);
+  border-radius: 14px;
+}
+.pcwn-value__icon svg {
+  width: 1.5rem; height: 1.5rem;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Título de cada valor ("Nuestra misión", etc.) */
+.pcwn-value h3 {
+  margin-bottom: 0.15rem;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* Párrafo descriptivo de cada valor */
+.pcwn-value p { font-size: 0.86rem; line-height: 1.5; }
+
+
+/* --- Animaciones --- */
+/* Animación de rotación continua para la órbita del logo central */
+@keyframes pcwnSpin { to { transform: rotate(360deg); } }
+
+/* Animación de entrada suave (desvanecimiento y subida ligera) para el modal */
+@keyframes pcwnModalIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+
+/* 7. MODO OSCURO (botón luna / sol) */
+
+/* Fondo degradado oscuro para la sección en modo nocturno */
+[data-theme="dark"] .pcwn { background: linear-gradient(180deg, var(--dk-bg) 0%, #0E1729 100%); }
+
+/* Ajusta los degradados oscuros sobre la foto de racks */
+[data-theme="dark"] .pcwn__bg::after {
+  background:
+    linear-gradient(90deg, var(--dk-bg) 0%, rgba(11, 18, 32, 0) 35%),
+    linear-gradient(0deg, #0E1729 0%, rgba(14, 23, 41, 0) 45%),
+    linear-gradient(rgba(3, 27, 61, 0.45), rgba(3, 27, 61, 0.45)),
+    url("../IMG/hero-network.png.png") center / cover no-repeat;
+}
+
+/* Texto descriptivo en color claro adaptado a modo oscuro */
+[data-theme="dark"] .pcwn__desc { color: var(--dk-text); }
+
+/* Intercambio de logos para modo oscuro: oculta el logo oscuro y muestra el logo blanco */
+[data-theme="dark"] .pcwn__brand .logo-light { display: none; }
+[data-theme="dark"] .pcwn__brand .logo-dark { display: block; }
+
+/* Panel de redes sociales en modo oscuro con fondo azul profundo */
+[data-theme="dark"] .pcwn__social {
+  background: rgba(17, 26, 46, 0.88);
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .pcwn__social-title { color: var(--dk-title); }
+[data-theme="dark"] .pcwn__social-title span { color: var(--dk-accent); }
+[data-theme="dark"] .pcwn__social-text { color: var(--dk-muted); }
+
+/* Ventana modal adaptada al tema oscuro */
+[data-theme="dark"] .pcwn-modal__box { background: var(--dk-surface); }
+[data-theme="dark"] .pcwn-modal__content { color: var(--dk-text); }
+[data-theme="dark"] .pcwn-modal__title span { color: var(--dk-accent); }
+[data-theme="dark"] .pcwn-value h3 { color: var(--dk-title); }
+[data-theme="dark"] .pcwn-value p { color: var(--dk-muted); }
+
+/* Colores de acento y fondos sutiles para iconos y botón de cierre en modo oscuro */
+[data-theme="dark"] .pcwn-value__icon,
+[data-theme="dark"] .pcwn-modal__close { color: var(--dk-accent); background: rgba(92, 196, 255, 0.12); }
+
+
+/* 8. RESPONSIVE */
+
+/* Laptop / tablet horizontal (hasta 1200 px):
+   fila 1 → información + logotipo · fila 2 → redes sociales */
+@media (max-width: 1200px) {
+  .pcwn__inner {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr);
+    grid-template-areas:
+      "info   brand"
+      "social social";           /* Redes sociales pasan a ocupar todo el ancho en la segunda fila */
+  }
+  .pcwn__brand { max-width: 300px; }
+  .pcwn__bg::after { width: 60%; height: 45%; opacity: 0.6; } /* Reduce la presencia visual del fondo */
+}
+
+/* Tablet (hasta 900 px): todo en una columna */
+@media (max-width: 900px) {
+  .pcwn__inner {
+    grid-template-columns: 1fr;  /* Una sola columna vertical */
+    grid-template-areas: "info" "brand" "social"; /* Orden apilado: Info primero, luego Logo, luego Redes */
+  }
+  .pcwn__brand { max-width: 260px; }
+  .pcwn__bg { opacity: 0.45; }
+  .pcwn__bg::after { display: none; } /* Oculta la foto pesada del rack para no sobrecargar pantallas medianas */
+
+  /* Ajusta las proporciones internas del modal en tablet */
+  .pcwn-modal__box { grid-template-columns: minmax(0, 0.38fr) minmax(0, 1fr); }
+}
+
+/* Celular (hasta 600 px) */
+@media (max-width: 600px) {
+  /* Apila las tres características una debajo de otra */
+  .pcwn .pcwn__features { grid-template-columns: 1fr; gap: 0.9rem; }
+  /* Botón "¿Quiénes somos?" al 100% de ancho para fácil pulsación táctil */
+  .pcwn__btn { width: 100%; justify-content: space-between; }
+  .pcwn__brand { max-width: 220px; }
+  .pcwn__cards { grid-template-columns: 1fr; }   /* tarjetas una debajo de otra */
+
+  /* Modal: imagen arriba (banda) y texto debajo con desplazamiento */
+  .pcwn-modal {
+    width: calc(100% - 1rem);     /* Más ancho disponible en móviles */
+    max-height: calc(100dvh - 1rem);
+    border-radius: 18px;
+  }
+  .pcwn-modal__box {
+    grid-template-columns: 1fr;   /* Distribución vertical en vez de horizontal */
+    grid-template-rows: 130px minmax(0, 1fr); /* 130px para la cabecera con foto y el resto para texto */
+    max-height: calc(100dvh - 1rem);
+  }
+  .pcwn-modal__logo { width: auto; height: 80%; }
+  .pcwn-modal__content { max-height: none; overflow-y: auto; }
+  .pcwn-modal__close { background: rgba(255, 255, 255, 0.92); } /* Botón de cierre más visible sobre la foto */
+}
+
+
+/* 9. MOVIMIENTO REDUCIDO */
+/* Regla de accesibilidad: desactiva animaciones y transiciones si el usuario
+   tiene activada la opción de reducir movimiento en su sistema operativo */
+@media (prefers-reduced-motion: reduce) {
+  .pcwn__orbit { animation: none; }        /* Detiene el giro de la órbita */
+  .pcwn-modal[open] { animation: none; }   /* Abre el modal al instante sin efecto de rebote */
+  .pcwn-card,
+  .pcwn-card::before,
+  .pcwn-modal__close { transition: none; } /* Quita transiciones de color y escala */
+  .pcwn-card:hover { transform: none; }    /* Evita el salto hacia arriba al pasar el cursor */
+}
+/* Feed de Instagram (Juicer) debajo de las tarjetas */
+.pcwn-feed {
+  margin-top: 1rem;
+  max-height: 420px;                 /* alto máximo; el resto se ve con scroll */
+  overflow-y: auto;
+  border-radius: 14px;
+  background: var(--white);
+  border: 1px solid rgba(0, 140, 255, 0.15);
+  scrollbar-width: thin;
+}
+.pcwn-feed:empty { display: none; }  /* si no carga, no deja un hueco */
+
+[data-theme="dark"] .pcwn-feed {
+  background: var(--dk-surface-2);
+  border-color: var(--dk-border);
+}
+
+@media (max-width: 600px) {
+  .pcwn-feed { max-height: 360px; }
+}

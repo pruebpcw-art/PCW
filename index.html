@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<!--
+  PCW — SISTEMA WEB PRINCIPAL (index.html)
+  ARQUITECTURA DE CONTENIDO (EN ORDEN):
+    1. HEAD               -> Metadatos, SEO, fuentes web, hojas de estilo CSS y scripts JS.
+    2. HEADER             -> Logotipo con alternancia de tema, menú responsivo y botón WhatsApp.
+    3. MAIN               -> Contenedor de las 6 secciones principales:
+       - 1. Hero (#inicio)          -> Carrusel de 3 banners con temporizador de 6s y controles accesibles.
+       - 2. Nosotros (#nosotros)    -> Quiénes somos, ventajas competitivas, redes y ventana modal.
+       - 3. Servicios (#servicios)  -> 4 tarjetas de servicios con enlace preconfigurado a WhatsApp.
+       - 4. Duo:                    -> Contenedor dividido en 2 paneles comparativos:
+            * Productos (#productos) -> Equipos y categorías en venta física.
+            * Proyectos (#proyectos) -> Casos de éxito destacados (CCTV y Redes estructuradas).
+       - 5. Outlet (#outlet)        -> Tienda dinámica con filtros, buscador en vivo, orden y modal.
+       - 6. Contacto (#contacto)    -> Enlaces directos a Instagram, WhatsApp, Correo y Waze.
+    4. FOOTER             -> Mapa del sitio, servicios, datos de contacto y año dinámico.
+    5. EXTRAS             -> Botón flotante 'Volver arriba' y Asistente Técnico con IA (Gemini).
+
+  ARCHIVOS ASOCIADOS:
+    CSS/style.css         -> Estilos base, diseño responsivo y temas claro/oscuro.
+    CSS/outleStyle.css    -> Estilos dedicados para el catálogo del Outlet.
+    CSS/Nosotros.css      -> Estilos de la sección Nosotros, órbita y modal corporativo.
+    JS/theme.js           -> Controlador de tema claro/oscuro (Clase ThemeManager, sin diferir).
+    JS/script.js          -> Menú móvil, sticky header, animaciones reveal y año automático (Clase App).
+    JS/api.js             -> Conexión con IA Gemini (Clases GeminiClient y AssistantChat).
+    JS/hero-carousel.js   -> Lógica del carrusel de banners (Clase HeroCarousel).
+    JS/outlet.js          -> Gestión dinámica de productos del Outlet (Clases OutletCatalog y ProductModal).
+    JS/Nosotros.js        -> Control de apertura y cierre del diálogo modal corporativo.
+    JS/i18n.js            -> Sistema de traducción español / inglés (Clase Translator).
+-->
+<html lang="es">
+<head>
+  <!--1. SEGMENTO: METADATOS BÁSICOS Y OPTIMIZACIÓN SEO -->
+  <!-- Variable de codificación: UTF-8 permite renderizar tildes, eñes y caracteres especiales -->
+  <meta charset="UTF-8">
+  <!-- Variable de escala responsiva: ajusta el ancho de renderizado al tamaño físico del dispositivo -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Título principal indexado por motores de búsqueda y mostrado en la pestaña del navegador -->
+  <title>PCW | Soporte técnico, redes y CCTV en Costa Rica</title>
+  <!-- Meta descripción: texto de resumen visualizado por Google en los resultados de búsqueda -->
+  <meta name="description" content="PCW: más de 25 años brindando soporte técnico, instalación de redes, sistemas CCTV y venta de equipos tecnológicos para hogares y empresas en Costa Rica.">
+  <!-- Variable de color de interfaz: colorea la barra superior del navegador en dispositivos móviles -->
+  <meta name="theme-color" content="#031B3D">
+  <!-- Favicon: ícono gráfico visualizado en la pestaña del explorador -->
+  <link rel="icon" href="IMG/LogoN.png" type="image/png">
+
+  <!-- 2. SEGMENTO: GESTOR DE TEMA (CLARO / OSCURO) -->
+  <!-- 
+    FUNCIÓN / CLASE ASOCIADA: ThemeManager.init()
+    NOTA TÉCNICA: Se carga sin 'defer' para leer localStorage.getItem('theme') y aplicar 
+    la clase correspondiente al elemento <html> antes del renderizado, evitando el destello blanco (FOUC).
+  -->
+
+  <!-- 3. SEGMENTO: FUENTES EXTERNAS (GOOGLE FONTS) -->
+  <!-- Preconexión DNS y SSL a los servidores de Google Fonts para reducir el tiempo de carga -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Familias tipográficas: Sora (títulos y encabezados) e Inter (cuerpo de texto y legibilidad) -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- 4. SEGMENTO: HOJAS DE ESTILO CSS-->
+  <!-- Hoja principal: variables globales CSS, normalización, tipografía, botones y layout -->
+  <link rel="stylesheet" href="CSS/style.css">
+  <!-- Hoja modular: estilos del catálogo, filtros, buscador y tarjetas del Outlet -->
+  <link rel="stylesheet" href="CSS/outleStyle.css">      
+  <!-- Hoja modular: animación orbital de la marca y ventana modal de 'Nosotros' -->
+  <link rel="stylesheet" href="CSS/Nosotros.css">
+  <!-- Modo claro / oscuro (sin defer: evita el destello blanco) -->
+  <script src="JS/theme.js"></script>
+
+  <!-- Scripts de la página principal (defer: se ejecutan cuando el HTML terminó de cargar) -->
+  <script src="JS/script.js" defer></script>          <!-- menú hamburguesa, header, animaciones -->
+  <script src="JS/i18n.js" defer></script>            <!-- traducción ES / EN -->
+  <script src="JS/api.js" defer></script>             <!-- asistente Gemini -->
+  <script src="JS/hero carousel.js" defer></script>   <!-- carrusel del inicio -->
+  <script src="JS/outlet.js" defer></script>          <!-- catálogo del Outlet -->
+  <script src="JS/Nosotros.js" defer></script>        <!-- modal "¿Quiénes somos?" -->
+</head>
+
+<body>
+
+  <!-- ACCESIBILIDAD: Enlace de salto que permite a usuarios con lectores de pantalla o teclado ir directo a <main id="main"> -->
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <!--  HEADER — Logotipo y menú de navegación superior
+       VARIABLE DEL DOM (ID): 'header' -> Capturado en script.js para fijarlo y añadir sombra al hacer scroll.
+       FUNCIÓN ASOCIADA: App.initStickyHeader() -->
+  <header class="header" id="header">
+    <!-- 
+      DIV (.container .header__inner): 
+      - FUNCIÓN ESTRUCTURAL: Contenedor de ancho máximo limitado centrado con márgenes automáticos.
+      - DISTRIBUCIÓN (FLEXBOX): Alinea en una sola fila el logotipo (izquierda), menú (centro) y botón de contacto (derecha).
+    -->
+    <div class="container header__inner">
+      <!-- Enlace principal que redirige al inicio de la página -->
+      <a href="#inicio" class="header__logo" aria-label="PCW, ir al inicio">
+        <!-- Variable visual 1: Se muestra únicamente cuando el tema es claro -->
+        <img class="logo-light" src="IMG/LogoN.png" alt="Logo de PCW" width="150" height="56">
+        <!-- Variable visual 2: Se muestra únicamente cuando el tema es oscuro -->
+        <img class="logo-dark" src="IMG/WhatsApp_Image_2026-10-08_at_12.07.03-removebg-preview.png" alt="Logo de PCW" width="150" height="56">
+      </a>
+
+      <!-- 
+        NAV (ID: 'nav'):
+        - VARIABLE DEL DOM: Capturado por App.initNavigation() para desplegar o retraer el menú en dispositivos móviles.
+      -->
+      <nav class="nav" id="nav" aria-label="Navegación principal">
+        <ul class="nav__list">
+          <!-- Clase de estado '.is-active': Marca la sección que se encuentra visible en la pantalla -->
+          <li><a href="#inicio" class="nav__link is-active">Inicio</a></li>
+          <li><a href="#nosotros" class="nav__link">Nosotros</a></li>
+          <li><a href="#servicios" class="nav__link">Servicios</a></li>
+          <li><a href="proyectos.html" class="nav__link">Proyectos</a></li>
+          <li><a href="#productos" class="nav__link">Productos</a></li>
+          <li><a href="#outlet" class="nav__link">Outlet</a></li>
+          <li><a href="#contacto" class="nav__link">Contacto</a></li>
+        </ul>
+        <!-- Botón de llamada a la acción (CTA) con enlace directo al número comercial de WhatsApp -->
+        <a href="https://wa.me/50687231636" class="btn btn--primary nav__cta" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a8 8 0 0 0-8 8v5a3 3 0 0 0 3 3h1v-7H6v-1a6 6 0 0 1 12 0v1h-2v7h1.5a2.5 2.5 0 0 1-2.5 2h-3v2h3a4.5 4.5 0 0 0 4.4-3.6A3 3 0 0 0 20 16v-5a8 8 0 0 0-8-8z"/></svg>
+          Solicitar soporte
+          </a>
+      </nav>
+
+      <!-- 
+        BOTÓN HAMBURGUESA (ID: 'hamburger'):
+        - VARIABLE DEL DOM: Disparador del evento de clic para pantallas táctiles.
+        - ATRIBUTO ACCESIBLE: 'aria-expanded' alterna dinámicamente entre 'true' y 'false'.
+        - FUNCIÓN ASOCIADA: App.toggleMobileMenu()
+      -->
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN — Contenedor semántico principal de todas las secciones del sitio
+       VARIABLE DEL DOM (ID): 'main' -> Destino del enlace de accesibilidad skip-link.-->
+  <main id="main">
+
+    <!-- 1. HERO (#inicio) — Carrusel de 3 banners automáticos (cambio cada 6s)
+         VARIABLE DEL DOM (ID): 'inicio' -> Destino del ancla de navegación.
+         FUNCIÓN / CLASE ASOCIADA: HeroCarousel.init() en JS/hero-carousel.js-->
+    <section class="hero hero-carousel" id="inicio" aria-roledescription="carrusel" aria-label="Banners principales de PCW">
+
+      <!-- 
+        DIV (.hero-carousel__slides): 
+        - FUNCIÓN ESTRUCTURAL: Contenedor maestro tipo 'track' que apila y gestiona la posición visual de las diapositivas.
+      -->
+      <div class="hero-carousel__slides">
+
+        <!--  BANNER 1: Experiencia (Activo por defecto) -->
+        <!-- 
+          DIV (.hero-carousel__slide): Diapositiva individual.
+          - VARIABLE DE ESTADO: '.is-active' determina que es la diapositiva visible al cargar.
+        -->
+        <div class="hero-carousel__slide is-active" role="group" aria-roledescription="diapositiva" aria-label="1 de 3">
+          <!-- DIV (.hero__media): Envoltorio multimedia con recorte absoluto (object-fit: cover) -->
+          <div class="hero__media">
+            <img src="IMG/hero-network.png.png" alt="Rack de servidores con cableado Ethernet azul y cámara de seguridad" fetchpriority="high" decoding="async">
+          </div>
+          <!-- DIV (.hero__overlay): Filtro visual oscuro con gradiente para garantizar el contraste del texto (WCAG) -->
+          <div class="hero__overlay" aria-hidden="true"></div>
+          <!-- DIV (.hero__lines): Capa gráfica superpuesta con patrones de líneas vectoriales decorativas -->
+          <div class="hero__lines" aria-hidden="true"></div>
+
+          <!-- DIV (.container .hero__content): Contenedor centrado que alinea textos, títulos y botones CTA -->
+          <div class="container hero__content">
+            <h1 class="hero__title">
+              <span class="hero__pre">Más de</span>
+              <span class="hero__big">
+                <span class="hero__number">25</span>
+                <span class="hero__words">años impulsando<br>tu <em>tecnología</em></span>
+              </span>
+            </h1>
+            <span class="hero__divider" aria-hidden="true"></span>
+            <p class="hero__text">Soluciones en redes, CCTV y soporte técnico para hogares y empresas.</p>
+            <a href="#servicios" class="btn btn--primary btn--arrow">
+              Conoce nuestros servicios
+              <span class="btn__circle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg></span>
+            </a>
+          </div>
+        </div>
+
+        <!--  BANNER 2: Outlet Tecnológico -->
+        <!-- DIV (.hero-carousel__slide): Diapositiva 2 (oculta inicialmente mediante aria-hidden="true") -->
+        <div class="hero-carousel__slide" role="group" aria-roledescription="diapositiva" aria-label="2 de 3" aria-hidden="true">
+          <!-- DIV (.hero__media): Contenedor de la fotografía de productos Outlet -->
+          <div class="hero__media">
+            <img src="IMG/outlet.png" alt="Equipos de red, cámaras de seguridad y accesorios tecnológicos en oferta" decoding="async">
+          </div>
+          <!-- DIV (.hero__overlay): Capa de contraste visual -->
+          <div class="hero__overlay" aria-hidden="true"></div>
+          <!-- DIV (.hero__lines): Líneas decorativas vectoriales -->
+          <div class="hero__lines" aria-hidden="true"></div>
+
+          <!-- DIV (.container .hero__content): Contenedor de títulos y botón de salto a la sección #outlet -->
+          <div class="container hero__content">
+            <h2 class="hero-carousel__title">Outlet <span>Tecnológico</span> PCW</h2>
+            <span class="hero__divider" aria-hidden="true"></span>
+            <p class="hero__text">Aprovecha nuestras ofertas especiales en equipos, accesorios y productos tecnológicos disponibles en nuestra tienda física.</p>
+            <a href="#outlet" class="btn btn--primary btn--arrow">
+              Ver productos en oferta
+              <span class="btn__circle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg></span>
+            </a>
+          </div>
+        </div>
+
+        <!--  BANNER 3: Seguridad CCTV -->
+        <!-- DIV (.hero-carousel__slide): Diapositiva 3 (oculta inicialmente) -->
+        <div class="hero-carousel__slide" role="group" aria-roledescription="diapositiva" aria-label="3 de 3" aria-hidden="true">
+          <!-- DIV (.hero__media): Contenedor multimedia para imagen de cámara CCTV -->
+          <div class="hero__media">
+            <img src="IMG/CCTV.png.png" alt="Cámara de seguridad tipo domo para videovigilancia" decoding="async">
+          </div>
+          <!-- DIV (.hero__overlay): Capa de oscurecimiento fotográfico -->
+          <div class="hero__overlay" aria-hidden="true"></div>
+          <!-- DIV (.hero__lines): Trazos decorativos -->
+          <div class="hero__lines" aria-hidden="true"></div>
+
+          <!-- DIV (.container .hero__content): Contenedor de textos informativos sobre seguridad electrónica -->
+          <div class="container hero__content">
+            <h2 class="hero-carousel__title"><span>Protegemos</span> lo que más importa</h2>
+            <span class="hero__divider" aria-hidden="true"></span>
+            <p class="hero__text">Implementamos sistemas de videovigilancia CCTV y soluciones de seguridad electrónica para proteger hogares, negocios e instalaciones empresariales.</p>
+            <a href="#servicios" class="btn btn--primary btn--arrow">
+              Conoce nuestras soluciones CCTV
+              <span class="btn__circle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg></span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 
+        DIV (.hero-carousel__controls .container): 
+        - FUNCIÓN ESTRUCTURAL: Barra centrada que agrupa los botones interactivos del carrusel.
+      -->
+      <div class="hero-carousel__controls container">
+        <!-- 
+          BOTÓN ANTERIOR:
+          - FUNCIÓN ASOCIADA: HeroCarousel.prev() retrocede a la diapositiva previa.
+        -->
+        <button type="button" class="hero-carousel__arrow hero-carousel__arrow--prev" aria-label="Banner anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+
+        <!-- 
+          DIV (.hero-carousel__dots):
+          - FUNCIÓN ESTRUCTURAL: Agrupador Flexbox de los indicadores circulares de salto directo.
+          - VARIABLE DEL DOM: Botones capturados por querySelectorAll('.hero-carousel__dot') en JS.
+          - FUNCIÓN ASOCIADA: HeroCarousel.goTo(indice)
+        -->
+        <div class="hero-carousel__dots" role="group" aria-label="Seleccionar banner">
+          <button type="button" class="hero-carousel__dot" aria-label="Ir al banner 1: Experiencia" aria-current="true"></button>
+          <button type="button" class="hero-carousel__dot" aria-label="Ir al banner 2: Outlet"></button>
+          <button type="button" class="hero-carousel__dot" aria-label="Ir al banner 3: Seguridad"></button>
+        </div>
+
+        <!-- 
+          BOTÓN SIGUIENTE:
+          - FUNCIÓN ASOCIADA: HeroCarousel.next() avanza a la siguiente diapositiva.
+        -->
+        <button type="button" class="hero-carousel__arrow hero-carousel__arrow--next" aria-label="Banner siguiente">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <!-- 
+          BOTÓN PAUSAR / REANUDAR:
+          - FUNCIÓN ASOCIADA: HeroCarousel.togglePlayPause() detiene o reanuda el intervalo automático de 6s.
+          - VARIABLE DE ESTADO: 'aria-pressed' alterna entre 'true' y 'false' para cambiar el ícono en pantalla.
+        -->
+        <button type="button" class="hero-carousel__pause" aria-label="Pausar carrusel" aria-pressed="false">
+          <svg class="hero-carousel__icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+          <svg class="hero-carousel__icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+
+      <!-- 
+        PÁRRAFO ACCESIBLE (ID: 'heroCarouselStatus'):
+        - VARIABLE DEL DOM: HeroCarousel actualiza su texto para anunciar a invidentes la diapositiva en pantalla.
+      -->
+      <p class="visually-hidden" aria-live="polite" id="heroCarouselStatus"></p>
+    </section>
+
+    <!-- 2. NOSOTROS (#nosotros) — Reseña institucional, valores y redes
+         VARIABLE DEL DOM (ID): 'nosotros' -> Ancla del menú.
+         ESTILOS: CSS/Nosotros.css | LÓGICA DE DIÁLOGO: JS/Nosotros.js -->
+    <section class="about section pcwn" id="nosotros" aria-labelledby="about-title">
+      <!-- DIV (.pcwn__bg): Capa de fondo absoluto con texturas gráficas y fotografías de servidores -->
+      <div class="pcwn__bg" aria-hidden="true"></div>
+
+      <!-- 
+        DIV (.pcwn__inner): 
+        - FUNCIÓN ESTRUCTURAL: Rejilla CSS Grid de 3 columnas que organiza la información:
+          Columna 1: Datos corporativos y botón de modal.
+          Columna 2: Logotipo con anillo orbital giratorio.
+          Columna 3: Tarjetas de redes sociales (Instagram y Facebook).
+      -->
+      <div class="pcwn__inner">
+
+        <!-- Columna 1: Información Corporativa-->
+        <!-- 
+          DIV (.pcwn__info .reveal): 
+          - CLASE DE ESTADO (.reveal): Observada por IntersectionObserver para animar la entrada al hacer scroll.
+        -->
+        <div class="pcwn__info reveal">
+          <h2 class="section-title" id="about-title">Tu aliado en <span class="section-title__line">soluciones tecnológicas</span></h2>
+          <p class="pcwn__desc">Brindamos soporte técnico, instalación y diseño de redes y sistemas de seguridad, con un enfoque en calidad, confianza y un servicio personalizado.</p>
+
+          <ul class="features pcwn__features">
+            <!-- Ventaja 1: Experiencia -->
+            <li class="feature">
+              <span class="feature__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4-6.3 6.3z"/></svg>
+              </span>
+              <!-- DIV: Bloque que alinea el título de la característica y su texto explicativo -->
+              <div>
+                <h3 class="feature__title">Experiencia</h3>
+                <p class="feature__text">Más de 25 años en el sector tecnológico.</p>
+              </div>
+            </li>
+            <!-- Ventaja 2: Atención -->
+            <li class="feature">
+              <span class="feature__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm14 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 14c-3.3 0-6 1.8-6 4v2h12v-2c0-2.2-2.7-4-6-4zm-7 0c-.6 0-1.2.1-1.8.2C1.9 14.6 1 15.6 1 17v3h3v-2c0-1.5.4-2.9 1.2-4H5zm14 0h-.2c.8 1.1 1.2 2.5 1.2 4v2h3v-3c0-1.4-.9-2.4-2.2-2.8-.6-.1-1.2-.2-1.8-.2z"/></svg>
+              </span>
+              <div>
+                <h3 class="feature__title">Atención personalizada</h3>
+                <p class="feature__text">Soluciones adaptadas a las necesidades de cada cliente.</p>
+              </div>
+            </li>
+            <!-- Ventaja 3: Personalización -->
+            <li class="feature">
+              <span class="feature__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.3 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.7 1.7 1L11 21h4l.3-2.9c.6-.3 1.2-.6 1.7-1l2.5 1 2-3.5L19.4 13zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+              </span>
+              <div>
+                <h3 class="feature__title">Soluciones a la medida</h3>
+                <p class="feature__text">Implementaciones seguras y eficientes para cada proyecto.</p>
+              </div>
+            </li>
+          </ul>
+
+          <!-- 
+            BOTÓN DISPARADOR DE MODAL:
+            - VARIABLE DE CONTROL (DATA-ATTRIBUTE): 'data-pcwn-open' -> Capturado en JS/Nosotros.js.
+            - FUNCIÓN ASOCIADA: modal.showModal() abre la ventana de diálogo sin recargar la página.
+          -->
+          <button type="button" class="btn btn--primary btn--arrow pcwn__btn" data-pcwn-open aria-haspopup="dialog" aria-controls="pcwn-modal">
+            ¿Quiénes somos?
+            <span class="btn__circle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg></span>
+          </button>
+        </div>
+
+        <!-- Columna 2: Logotipo y Efecto Orbital -->
+        <!-- 
+          DIV (.pcwn__brand .reveal): 
+          - FUNCIÓN ESTRUCTURAL: Contenedor con posicionamiento relativo para animar la órbita luminosa y sostener el logo.
+        -->
+        <div class="pcwn__brand reveal" aria-hidden="true">
+          <!-- Anillo circular animado mediante transformación CSS (@keyframes rotate) -->
+          <span class="pcwn__orbit"></span>
+          <img class="logo-light" src="IMG/LogoN.png" alt="" loading="lazy" width="460" height="230">
+          <img class="logo-dark" src="IMG/WhatsApp_Image_2026-10-08_at_12.07.03-removebg-preview.png" alt="" loading="lazy" width="460" height="230">
+        </div>
+
+        <!--  Columna 3: Canales de Redes Sociales -->
+        <!-- 
+          DIV (.pcwn__social .reveal): 
+          - FUNCIÓN ESTRUCTURAL: Columna derecha con encabezados y contenedor de enlaces sociales.
+        -->
+        <div class="pcwn__social reveal" aria-labelledby="pcwn-social-title">
+          <h3 class="pcwn__social-title" id="pcwn-social-title">Síguenos en nuestras <span>redes</span></h3>
+          <p class="pcwn__social-text">Conoce más de nuestras instalaciones, proyectos y novedades.</p>
+
+          <!-- DIV (.pcwn__cards): Contenedor vertical que agrupa las tarjetas de redes sociales -->
+          <div class="pcwn__cards">
+            <!-- Tarjeta 1: Instagram -->
+            <article class="pcwn-card pcwn-card--instagram">
+              <span class="pcwn-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.5 5.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+              </span>
+              <h4 class="pcwn-card__title">Síguenos en <span>Instagram</span></h4>
+              <p class="pcwn-card__handle">@pcwizardcr</p>
+              <p class="pcwn-card__text">Mirá fotos de nuestras instalaciones y proyectos.</p>
+              <a class="pcwn-card__btn" href="https://www.instagram.com/pcwizardcr/" target="_blank" rel="noopener noreferrer"
+                 aria-label="Ver el perfil de Instagram de PC Wizard (se abre en una pestaña nueva)">
+                Ver perfil
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+              </a>
+            </article>
+
+            <!-- Tarjeta 2: Facebook -->
+            <article class="pcwn-card pcwn-card--facebook">
+              <span class="pcwn-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.23 2.68.23v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+              </span>
+              <h4 class="pcwn-card__title">Síguenos en <span>Facebook</span></h4>
+              <p class="pcwn-card__handle">PC Wizard</p>
+              <p class="pcwn-card__text">Entérate de nuestros proyectos, novedades y promociones.</p>
+              <a class="pcwn-card__btn" href="https://www.facebook.com/share/19X6XxS4Ke/" target="_blank" rel="noopener noreferrer"
+                 aria-label="Visitar la página de Facebook de PC Wizard (se abre en una pestaña nueva)">
+                Visitar Facebook
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+              </a>
+            </article>
+          </div>
+        </div>
+      </div>
+                <!-- Últimas publicaciones de Instagram (Juicer) -->
+          <div class="pcwn-feed" aria-label="Últimas publicaciones de Instagram de PC Wizard">
+            <script type="text/javascript" src="https://www.juicer.io/embed/my-feed-49baacc3-c72e-4007-9886-b81373540d33/embed-code.js" async defer></script>
+          </div>
+
+      <!--MODAL "¿QUIÉNES SOMOS?" -->
+      <!-- 
+        DIALOG (ID: 'pcwn-modal'):
+        - VARIABLE DEL DOM: Capturado por document.getElementById('pcwn-modal') en JS/Nosotros.js.
+        - ATRIBUTOS ACCESIBLES: aria-modal="true" atrapa el foco del teclado; aria-labelledby vincula el título.
+      -->
+      <dialog class="pcwn-modal" id="pcwn-modal" aria-labelledby="pcwn-modal-title" aria-modal="true">
+        <!-- 
+          DIV (.pcwn-modal__box): 
+          - FUNCIÓN ESTRUCTURAL: Contenedor interior tipo tarjeta modal flotante con sombra y fondo oscuro.
+          - DISTRIBUCIÓN: Dos columnas (columna visual izquierda y columna informativa derecha).
+        -->
+        <div class="pcwn-modal__box">
+          <!-- 
+            BOTÓN CERRAR:
+            - VARIABLE DE CONTROL: 'data-pcwn-close' -> Dispara modal.close() en JS/Nosotros.js.
+          -->
+          <button type="button" class="pcwn-modal__close" data-pcwn-close aria-label="Cerrar ventana ¿Quiénes somos?">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+
+          <!-- DIV (.pcwn-modal__media): Columna izquierda con fotografía de instalación y logo superpuesto -->
+          <div class="pcwn-modal__media" aria-hidden="true">
+            <img class="pcwn-modal__photo" src="IMG/Instalacion.redes.png.png" alt="" loading="lazy">
+            <img class="pcwn-modal__logo" src="IMG/WhatsApp_Image_2026-10-08_at_12.07.03-removebg-preview.png" alt="" loading="lazy">
+          </div>
+
+          <!-- DIV (.pcwn-modal__content): Columna derecha con textos institucionales, misión, visión y valores -->
+          <div class="pcwn-modal__content">
+            <h2 class="section-title pcwn-modal__title" id="pcwn-modal-title">¿Quiénes <span>somos?</span></h2>
+            <p>En PC Wizard somos una empresa costarricense con más de 25 años de experiencia en el sector tecnológico. Nos especializamos en brindar soluciones integrales en redes, sistemas de seguridad y soporte técnico para hogares y empresas.</p>
+            <p>Trabajamos con un enfoque en la calidad, la confianza y un servicio personalizado, adaptándonos a las necesidades de cada cliente.</p>
+
+            <!-- Lista de pilares corporativos -->
+            <ul class="pcwn-values">
+              <!-- Pilar 1: Misión -->
+              <li class="pcwn-value">
+                <span class="pcwn-value__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+                </span>
+                <div>
+                  <h3>Nuestra misión</h3>
+                  <p>Brindar soluciones tecnológicas confiables y eficientes que impulsen el crecimiento y la seguridad de nuestros clientes.</p>
+                </div>
+              </li>
+              <!-- Pilar 2: Visión -->
+              <li class="pcwn-value">
+                <span class="pcwn-value__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                </span>
+                <div>
+                  <h3>Nuestra visión</h3>
+                  <p>Ser un referente en Costa Rica en soluciones de redes y seguridad, reconocidos por nuestra calidad y servicio.</p>
+                </div>
+              </li>
+              <!-- Pilar 3: Valores -->
+              <li class="pcwn-value">
+                <span class="pcwn-value__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21 8 9l4-6 4 6z"/></svg>
+                </span>
+                <div>
+                  <h3>Nuestros valores</h3>
+                  <p>Calidad, confianza, compromiso y servicio personalizado.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </dialog>
+    </section>
+
+    <!--3. SERVICIOS (#servicios) — 4 tarjetas con enlace directo a WhatsApp
+         VARIABLE DEL DOM (ID): 'servicios' -> Destino del menú de navegación. -->
+    <section class="services section" id="servicios" aria-labelledby="services-title">
+      <!-- DIV (.services__bg): Capa de fondo decorativa propia de la sección de servicios -->
+      <div class="services__bg" aria-hidden="true"></div>
+
+      <!-- DIV (.container): Envoltorio con límite de ancho para centrar el contenido en la pantalla -->
+      <div class="container">
+        <h2 class="section-title section-title--center section-title--light" id="services-title">Nuestros Servicios</h2>
+
+        <!-- 
+          DIV (.services__grid): 
+          - FUNCIÓN ESTRUCTURAL: Cuadrícula responsiva (CSS Grid) de 4 columnas en escritorio que se adapta a 2 columnas en tabletas y 1 en móviles.
+        -->
+        <div class="services__grid">
+
+          <!-- SERVICIO 1: Soporte Técnico en Taller -->
+          <!-- 
+            ARTICLE (.card .reveal): Tarjeta de servicio interactiva.
+            - ATRIBUTO 'tabindex="0"': Permite navegación y foco accesible mediante el teclado.
+            - CLASE '.reveal': Dispara la animación de entrada al hacer scroll.
+          -->
+          <article class="card reveal" tabindex="0">
+            <!-- DIV (.card__media): Contenedor de la fotografía del servicio con proporción fija -->
+            <div class="card__media">
+              <img src="IMG/Instalacion.redes.png.png" alt="Técnico reparando una computadora en el taller" loading="lazy">
+            </div>
+            <!-- DIV (.card__body): Contenedor con ícono, título descriptivo, resumen y botón de enlace -->
+            <div class="card__body">
+              <span class="card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M22.7 19 13.6 9.9c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+              </span>
+              <h3 class="card__title">Soporte Técnico en Taller</h3>
+              <p class="card__text">Diagnóstico, reparación y mantenimiento de equipos.</p>
+              <!-- 
+                ENLACE A WHATSAPP:
+                - VARIABLE DE MENSAJE (?text=...): Mensaje codificado en URL predeterminado para el servicio 1.
+              -->
+              <a href="https://wa.me/50687231636?text=Hola%20PCW,%20necesito%20soporte%20t%C3%A9cnico%20en%20taller" class="card__arrow" target="_blank" rel="noopener" aria-label="Solicitar soporte técnico en taller por WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+
+          <!--SERVICIO 2: Soporte Remoto -->
+          <article class="card reveal" tabindex="0">
+            <div class="card__media">
+              <img src="IMG/Sporte.remto.png.png" alt="Persona recibiendo asistencia técnica remota en una laptop" loading="lazy">
+            </div>
+            <div class="card__body">
+              <span class="card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M20 3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h6v2H8v2h8v-2h-2v-2h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 13H4V5h16v11z"/></svg>
+              </span>
+              <h3 class="card__title">Soporte Remoto</h3>
+              <p class="card__text">Asistencia rápida y segura donde lo necesites.</p>
+              <!-- Mensaje predeterminado para soporte remoto -->
+              <a href="https://wa.me/50687231636?text=Hola%20PCW,%20necesito%20soporte%20remoto" class="card__arrow" target="_blank" rel="noopener" aria-label="Solicitar soporte remoto por WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- SERVICIO 3: Instalación de Redes -->
+          <article class="card reveal" tabindex="0">
+            <div class="card__media">
+              <img src="IMG/Redes.png.png" alt="Patch panel con cables de red azules" loading="lazy">
+            </div>
+            <div class="card__body">
+              <span class="card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-1 5.8V10H7a2 2 0 0 0-2 2v2.2a3 3 0 1 0 2 0V12h10v2.2a3 3 0 1 0 2 0V12a2 2 0 0 0-2-2h-4V7.8A3 3 0 0 0 12 2z"/></svg>
+              </span>
+              <h3 class="card__title">Instalación de Redes</h3>
+              <p class="card__text">Diseño e implementación de redes cableadas e inalámbricas.</p>
+              <!-- Mensaje predeterminado para cotizar redes -->
+              <a href="https://wa.me/50687231636?text=Hola%20PCW,%20quiero%20cotizar%20una%20instalaci%C3%B3n%20de%20red" class="card__arrow" target="_blank" rel="noopener" aria-label="Cotizar instalación de redes por WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- SERVICIO 4: Sistemas CCTV -->
+          <article class="card reveal" tabindex="0">
+            <div class="card__media">
+              <img src="IMG/CCTV.png.png" alt="Cámara de seguridad tipo domo instalada en techo" loading="lazy">
+            </div>
+            <div class="card__body">
+              <span class="card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M2.5 6.2 16 2.6l1.8 6.8-13.5 3.6zM18.6 10.6l2.9-.8.8 2.9-2.9.8zM6 14.2l2-.5 1 3.6H5v3H3v-8h2v3h2.5z"/></svg>
+              </span>
+              <h3 class="card__title">Sistemas CCTV</h3>
+              <p class="card__text">Instalación, configuración y mantenimiento de sistemas de videovigilancia.</p>
+              <!-- Mensaje predeterminado para cotizar CCTV -->
+              <a href="https://wa.me/50687231636?text=Hola%20PCW,%20quiero%20cotizar%20un%20sistema%20CCTV" class="card__arrow" target="_blank" rel="noopener" aria-label="Cotizar sistema CCTV por WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!--4. PRODUCTOS (#productos) + PROYECTOS (#proyectos)
+         Dos paneles paralelos dentro del contenedor envoltorio .duo-->
+    <!-- 
+      DIV (.duo): 
+      - FUNCIÓN ESTRUCTURAL: Contenedor padre de diseño comparativo de dos paneles (CSS Grid lado a lado en escritorio, apilado en móviles).
+    -->
+    <div class="duo">
+
+      <!-- Panel 1: Productos en venta -->
+      <!-- VARIABLE DEL DOM (ID): 'productos' -> Destino del menú de productos -->
+      <section class="panel panel--products section" id="productos" aria-labelledby="products-title">
+        <!-- DIV (.panel__deco): Fondo gráfico decorativo propio del panel de productos -->
+        <div class="panel__deco" aria-hidden="true"></div>
+        <!-- DIV (.panel__inner .reveal): Envoltorio interno con animación al scroll -->
+        <div class="panel__inner reveal">
+
+          <!-- DIV (.panel__header): Cabecera superior con títulos, líneas de puntos, categorías y botón CTA -->
+          <div class="panel__header">
+            <h2 class="section-title" id="products-title">
+              Productos en <span class="section-title__highlight">Venta</span>
+            </h2>
+            <!-- DIV (.title-deco .title-deco--dots): Separador estilizado con línea continua y tres puntos decorativos -->
+            <div class="title-deco title-deco--dots" aria-hidden="true">
+              <span class="title-deco__line"></span>
+              <span class="title-deco__dot"></span>
+              <span class="title-deco__dot"></span>
+              <span class="title-deco__dot"></span>
+            </div>
+            <p class="panel__desc">Equipos y accesorios de tecnología de las mejores marcas.</p>
+
+            <!-- Lista de categorías de productos en formato de etiquetas visuales (tags) -->
+            <ul class="tags" aria-label="Categorías de productos">
+              <li>Cámaras CCTV</li>
+              <li>Switches</li>
+              <li>Routers</li>
+              <li>Discos duros</li>
+            </ul>
+
+            <!-- Botón hacia el catálogo de ventas en WhatsApp -->
+            <a href="https://wa.me/50685847327" class="btn btn--primary btn--arrow" target="_blank" rel="noopener">
+              Ver catálogo
+              <span class="btn__circle" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </span>
+            </a>
+          </div>
+
+          <!-- DIV (.panel__media): Envoltorio multimedia inferior para imagen compuesta de productos tecnológicos -->
+          <div class="panel__media">
+            <img src="IMG/ventas.png.png" alt="Cámara CCTV, switch de red, router Wi-Fi y equipos tecnológicos en exhibición" loading="lazy">
+          </div>
+
+        </div>
+      </section>
+
+      <!--  Panel 2: Proyectos -->
+      <!-- VARIABLE DEL DOM (ID): 'proyectos' -> Destino del enlace a proyectos -->
+      <section class="panel panel--projects section" id="proyectos" aria-labelledby="projects-title">
+        <!-- DIV (.panel__deco-projects): Capa gráfica decorativa del panel de proyectos -->
+        <div class="panel__deco-projects" aria-hidden="true"></div>
+        <!-- DIV (.panel__inner .reveal): Envoltorio interno con animación 'reveal' -->
+        <div class="panel__inner reveal">
+
+          <!-- DIV (.panel__header): Cabecera centrada con título, guiones de color y botón a proyectos.html -->
+          <div class="panel__header">
+            <h2 class="section-title" id="projects-title">Proyectos</h2>
+            <!-- DIV (.title-deco .title-deco--dashes): Separador decorativo de dos guiones en colores de la marca -->
+            <div class="title-deco title-deco--dashes" aria-hidden="true">
+              <span class="title-deco__dash title-deco__dash--primary"></span>
+              <span class="title-deco__dash title-deco__dash--sky"></span>
+            </div>
+            <p class="panel__desc">Conoce algunos de nuestros trabajos y soluciones implementadas.</p>
+
+            <!-- Botón que redirige a la página dedicada proyectos.html -->
+            <a href="proyectos.html" class="btn btn--primary btn--arrow">
+              Ver proyectos
+              <span class="btn__circle" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+              </span>
+            </a>
+          </div>
+
+          <!-- 
+            DIV (.project-cards): 
+            - FUNCIÓN ESTRUCTURAL: Contenedor que agrupa las tarjetas de proyectos destacados.
+            - DISEÑO: Centrado horizontalmente (mediante Flexbox justify-content: center o Grid centrado en CSS).
+          -->
+          <div class="project-cards">
+
+            <!-- PROYECTO 1: CCTV -->
+            <article class="project-card">
+              <!-- DIV (.project-card__media): Envoltorio de la foto con insignia (badge) informativa superpuesta -->
+              <div class="project-card__media">
+                <img src="IMG/Instalacion de CCTV.jpeg" alt="Cámara de videovigilancia CCTV exterior" loading="lazy">
+                <span class="project-card__badge">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  Seguridad electrónica
+                </span>
+              </div>
+              <!-- DIV (.project-card__body): Cuerpo con título, descripción y botón de enlace a proyectos.html#cctv -->
+              <div class="project-card__body">
+                <h3 class="project-card__title">Implementación de CCTV en empresa</h3>
+                <p class="project-card__text">Sistema de videovigilancia empresarial con monitoreo remoto.</p>
+                <a href="proyectos.html#cctv" class="project-card__btn" aria-label="Ver detalles de Implementación de CCTV">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <!--  PROYECTO 2: Redes Estructuradas -->
+            <article class="project-card">
+              <div class="project-card__media">
+                <img src="IMG/rack sistema de cableado.jpeg" alt="Cableado de red Ethernet estructurado" loading="lazy">
+                <span class="project-card__badge">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><path d="M6 7l4 3M14 14l4 3M6 17l4-3M14 10l4-3"/></svg>
+                  Infraestructura de redes
+                </span>
+              </div>
+              <div class="project-card__body">
+                <h3 class="project-card__title">Cableado estructurado en oficinas</h3>
+                <p class="project-card__text">Diseño e implementación de redes de datos con certificación.</p>
+                <a href="proyectos.html#redes" class="project-card__btn" aria-label="Ver detalles de Cableado estructurado">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+            </article>
+
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 5. OUTLET (#outlet) — Catálogo dinámico de productos en oferta
+         VARIABLE DEL DOM (ID): 'outlet' -> Ancla de navegación principal.
+         ESTILOS: CSS/outleStyle.css | LÓGICA: JS/outlet.js
+         FUNCIONES / CLASES ASOCIADAS: OutletCatalog y ProductModal-->
+    <section class="pcwo-outlet" id="outlet" aria-labelledby="pcwo-title">
+
+      <!-- BANNER DEL OUTLET -->
+      <header class="pcwo-banner">
+        <!-- 
+          DIV (.pcwo-banner__inner): 
+          - FUNCIÓN ESTRUCTURAL: Contenedor interior de 2 columnas: textos/beneficios (izq.) y arte del producto con badge (der.).
+        -->
+        <div class="pcwo-banner__inner">
+
+          <!-- DIV (.pcwo-banner__copy): Bloque izquierdo con textos, botón de salto al catálogo y lista de ventajas -->
+          <div class="pcwo-banner__copy">
+            <p class="pcwo-banner__brand">PC Wizard</p>
+            <h2 class="pcwo-banner__title" id="pcwo-title">
+              Outlet
+              <span class="pcwo-banner__accent">Tecnología</span>
+              de calidad
+            </h2>
+            <p class="pcwo-banner__text">
+              Equipos y accesorios en promoción.<br>
+              Gran rendimiento a mejores precios.
+            </p>
+            <!-- 
+              VARIABLE DE CONTROL: 'data-pcwo-scroll'
+              - FUNCIÓN ASOCIADA: Realiza un scroll suave hacia '#pcwo-catalogo' y le asigna el foco del teclado.
+            -->
+            <a class="pcwo-banner__btn" href="#pcwo-catalogo" data-pcwo-scroll>
+              Ver productos
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+
+            <!-- Beneficios de comprar en el Outlet -->
+            <ul class="pcwo-banner__features" aria-label="Beneficios del Outlet">
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+                <span><strong>Productos</strong> en excelente estado</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 3h15v13H1zM16 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                <span><strong>Disponibilidad</strong> limitada</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                <span><strong>Garantía incluida</strong> cuando corresponda</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+                <span><strong>Grandes</strong> descuentos</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- DIV (.pcwo-banner__media): Bloque derecho con imagen y badge de descuento -->
+          <div class="pcwo-banner__media">
+            <!-- 
+              VARIABLE DE CONTROL: 'data-pcwo-banner-img'
+              - FUNCIÓN ASOCIADA: Si la imagen no carga, JS/outlet.js la oculta con seguridad manteniendo el fondo azul.
+            -->
+            <img src="IMG/OUTLET (2).png" alt="Laptop, computadora, audífonos, cámara y tarjeta de video en oferta" loading="lazy" data-pcwo-banner-img>
+            <p class="pcwo-banner__badge" aria-label="Hasta 50 por ciento de descuento">
+              <span>Hasta</span><strong>50%</strong><span>de descuento</span>
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <!-- CATÁLOGO INTERACTIVO -->
+      <!-- 
+        DIV (.pcwo-catalog): 
+        - VARIABLE DEL DOM (ID): 'pcwo-catalogo' -> Ancla receptora con tabindex="-1" para permitir foco programático accesible.
+      -->
+      <div class="pcwo-catalog" id="pcwo-catalogo" tabindex="-1">
+        <!-- DIV (.pcwo-container): Contenedor de ancho limitado y padding responsivo -->
+        <div class="pcwo-container">
+
+          <!-- DIV (.pcwo-catalog__head): Título del catálogo y texto de disponibilidad física -->
+          <div class="pcwo-catalog__head">
+            <h3 class="pcwo-catalog__title">Productos en oferta</h3>
+            <p class="pcwo-catalog__text">Aprovecha precios especiales en equipos seleccionados. Unidades limitadas, disponibles en nuestra tienda.</p>
+          </div>
+
+          <!-- 
+            DIV (.pcwo-toolbar): 
+            - FUNCIÓN ESTRUCTURAL: Barra de controles (Flexbox) que contiene los filtros de categoría, buscador y selector de orden.
+          -->
+          <div class="pcwo-toolbar">
+
+            <!-- 
+              DIV (.pcwo-filters): 
+              - FUNCIÓN ESTRUCTURAL: Agrupador de botones para el filtrado dinámico.
+              - VARIABLE DE CONTROL (DATA-ATTRIBUTES): 'data-pcwo-filter="[categoria]"'
+              - FUNCIÓN ASOCIADA: OutletCatalog.setCategory(categoria) filtra los productos sin recargar la página.
+            -->
+            <div class="pcwo-filters" role="group" aria-label="Filtrar por categoría">
+              <button type="button" class="pcwo-filter is-active" data-pcwo-filter="todos" aria-pressed="true">Todos</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="laptops" aria-pressed="false">Laptops</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="computadoras" aria-pressed="false">Computadoras</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="componentes" aria-pressed="false">Componentes</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="accesorios" aria-pressed="false">Accesorios</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="camaras" aria-pressed="false">Cámaras</button>
+              <button type="button" class="pcwo-filter" data-pcwo-filter="redes" aria-pressed="false">Redes</button>
+            </div>
+
+            <!-- DIV (.pcwo-tools): Herramientas auxiliares de búsqueda y ordenación -->
+            <div class="pcwo-tools">
+              <!-- Buscador textual -->
+              <label class="pcwo-search">
+                <span class="visually-hidden">Buscar producto</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <!-- 
+                  VARIABLE DE CONTROL: 'data-pcwo-search'
+                  - FUNCIÓN ASOCIADA: OutletCatalog.handleSearch(query) filtra las tarjetas en tiempo real.
+                -->
+                <input type="search" placeholder="Buscar producto…" autocomplete="off" data-pcwo-search>
+              </label>
+
+              <!-- Menú de ordenación -->
+              <label class="pcwo-sort">
+                <span>Ordenar por:</span>
+                <!-- 
+                  VARIABLE DE CONTROL: 'data-pcwo-sort'
+                  - FUNCIÓN ASOCIADA: OutletCatalog.sortProducts(criterio) reordena la lista por fecha, precio o descuento.
+                -->
+                <select data-pcwo-sort>
+                  <option value="recientes">Más recientes</option>
+                  <option value="precio-asc">Menor precio</option>
+                  <option value="precio-desc">Mayor precio</option>
+                  <option value="descuento">Mayor descuento</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- 
+            PÁRRAFO ACCESIBLE:
+            - VARIABLE DE CONTROL: 'data-pcwo-status' -> Anuncia el conteo de resultados a lectores de pantalla.
+          -->
+          <p class="visually-hidden" role="status" aria-live="polite" data-pcwo-status></p>
+
+          <!-- 
+            LISTA DINÁMICA DE TARJETAS:
+            - VARIABLE DE CONTROL: 'data-pcwo-grid'
+            - FUNCIÓN ASOCIADA: OutletCatalog.renderGrid() inyecta dinámicamente aquí las etiquetas <li> de cada producto.
+          -->
+          <ul class="pcwo-grid" data-pcwo-grid aria-label="Productos del Outlet"></ul>
+
+          <!-- 
+            DIV (.pcwo-empty): 
+            - FUNCIÓN ESTRUCTURAL: Contenedor para mostrar mensajes de estado vacío o falla de red.
+            - VARIABLE DE CONTROL: 'data-pcwo-empty' -> JS quita o añade el atributo booleano 'hidden'.
+          -->
+          <div class="pcwo-empty" data-pcwo-empty hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11h5"/></svg>
+            <!-- VARIABLE: 'data-pcwo-empty-text' recibe el mensaje descriptivo ("No hay productos...") -->
+            <p data-pcwo-empty-text></p>
+            <!-- VARIABLE: 'data-pcwo-retry' botón que reintenta la petición fetch -->
+            <button type="button" class="pcwo-empty__btn" data-pcwo-retry hidden>Reintentar</button>
+          </div>
+
+          <p class="pcwo-note">Precios en colones costarricenses (₡). Unidades limitadas, sujetas a disponibilidad en tienda.</p>
+        </div>
+      </div>
+
+      <!-- MODAL DE DETALLE DE PRODUCTO -->
+      <!-- 
+        DIALOG:
+        - VARIABLE DE CONTROL: 'data-pcwo-modal'
+        - FUNCIÓN ASOCIADA: ProductModal.open(producto) abre el cuadro de diálogo modal.
+      -->
+      <dialog class="pcwo-modal" data-pcwo-modal aria-labelledby="pcwo-modal-title">
+        <!-- 
+          BOTÓN CERRAR:
+          - VARIABLE DE CONTROL: 'data-pcwo-close' -> Dispara ProductModal.close().
+        -->
+        <button type="button" class="pcwo-modal__close" data-pcwo-close aria-label="Cerrar detalles">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <!-- 
+          DIV (.pcwo-modal__body):
+          - VARIABLE DE CONTROL: 'data-pcwo-modal-body' -> Contenedor donde JS inyecta la foto ampliada, detalles y botón de compra.
+        -->
+        <div class="pcwo-modal__body" data-pcwo-modal-body></div>
+      </dialog>
+    </section>
+
+    <!-- 6. CONTACTO (#contacto) — Canales de comunicación directa
+         VARIABLE DEL DOM (ID): 'contacto' -> Ancla de navegación principal.-->
+    <section class="contact" id="contacto" aria-labelledby="contact-title">
+      <!-- DIV (.container): Envoltorio centrado para la cuadrícula de canales directos -->
+      <div class="container">
+        <h2 class="visually-hidden" id="contact-title">Contacto</h2>
+        <ul class="contact__list">
+          <!-- Canal 1: Instagram -->
+          <li>
+            <a class="contact__item" href="https://www.instagram.com/pcwizardcr/" target="_blank" rel="noopener noreferrer">
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM17.5 5.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+              </span>
+              <span><small>Síguenos en Instagram</small><strong>@pcwizardcr</strong></span>
+            </a>
+          </li>
+          <!-- Canal 2: WhatsApp -->
+          <li>
+            <a class="contact__item" href="https://wa.me/50687231636" target="_blank" rel="noopener">
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1c0 1.2.9 2.4 1 2.6.1.2 1.8 2.7 4.3 3.8 1.6.7 2.2.7 3 .6.5-.1 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2l-.5-.2z"/></svg>
+              </span>
+              <span><small>Escríbenos</small><strong>+506 8723-1636</strong></span>
+            </a>
+          </li>
+          <!-- Canal 3: Correo Electrónico -->
+          <li>
+            <a class="contact__item" href="mailto:ventas@pcwcr.com?subject=Consulta%20desde%20el%20sitio%20web">
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2.4V17h16V7.4l-8 5.3-8-5.3zM5.2 7 12 11.5 18.8 7H5.2z"/></svg>
+              </span>
+              <span><small>Correo</small><strong>ventas@pcwcr.com</strong></span>
+            </a>
+          </li>
+          <!-- Canal 4: Navegación GPS (Waze) -->
+          <li>
+            <a class="contact__item" href="https://waze.com/ul/hd1u0t8j8h" target="_blank" rel="noopener">
+              <span class="contact__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+              </span>
+              <span><small>Visítanos</small><strong>Escazú, San José</strong></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!--FOOTER — Pie de página institucional y mapa del sitio-->
+  <footer class="footer">
+    <!-- 
+      DIV (.container .footer__grid): 
+      - FUNCIÓN ESTRUCTURAL: Cuadrícula en 4 columnas que distribuye marca, enlaces, servicios y datos de contacto.
+    -->
+    <div class="container footer__grid">
+      <!-- Columna 1: Logotipo corporativo y lema -->
+      <div class="footer__brand">
+        <a href="#inicio" class="footer__logo" aria-label="PCW, volver al inicio">
+          <img src="IMG/WhatsApp_Image_2026-10-08_at_12.07.03-removebg-preview.png" alt="Logo de PCW" loading="lazy" width="170" height="64">
+        </a>
+        <p>Tecnología que te conecta con lo que importa.</p>
+      </div>
+
+      <!-- Columna 2: Navegación del mapa del sitio -->
+      <nav class="footer__col" aria-label="Enlaces del sitio">
+        <h3>Enlaces</h3>
+        <ul>
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#proyectos">Proyectos</a></li>
+          <li><a href="#productos">Productos</a></li>
+          <li><a href="#outlet">Outlet</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <!-- Columna 3: Enlaces a servicios principales -->
+      <div class="footer__col">
+        <h3>Servicios</h3>
+        <ul>
+          <li><a href="#servicios">Soporte Técnico</a></li>
+          <li><a href="#servicios">Soporte Remoto</a></li>
+          <li><a href="#servicios">Redes</a></li>
+          <li><a href="#servicios">CCTV</a></li>
+          <li><a href="#proyectos">Instalaciones</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 4: Datos directos de atención al cliente -->
+      <div class="footer__col">
+        <h3>Contacto</h3>
+        <ul class="footer__contact">
+          <li><a href="https://wa.me/50687231636" target="_blank" rel="noopener">+506 8723-1636</a></li>
+          <li><a href="mailto:ventas@pcwcr.com?subject=Consulta%20desde%20el%20sitio%20web">ventas@pcwcr.com</a></li>
+          <li><a href="https://waze.com/ul/hd1u0t8j8h" target="_blank" rel="noopener">Escazú, San José</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 
+      DIV (.footer__bottom): 
+      - FUNCIÓN ESTRUCTURAL: Barra inferior con fondo oscuro para la línea legal de derechos de autor.
+      - VARIABLE DEL DOM (ID): 'year'
+      - FUNCIÓN ASOCIADA: new Date().getFullYear() inyecta automáticamente el año actual en script.js.
+    -->
+    <div class="footer__bottom">
+      <p class="container">© <span id="year"></span> PC Wizard S.A. Todos los derechos reservados.</p>
+      <p class="container"><span id="year"></span> By Amanda Lagos</p>
+       </div>
+  </footer>
+
+  <!-- EXTRAS — Componentes flotantes interactivos-->
+
+  <!-- 
+    BOTÓN "VOLVER ARRIBA" (ID: 'toTop'):
+    - VARIABLE DEL DOM: Capturado por document.getElementById('toTop') en script.js.
+    - VARIABLE DE ESTADO: Añade la clase '.is-visible' cuando window.scrollY supera los 300px.
+    - FUNCIÓN ASOCIADA: window.scrollTo({ top: 0, behavior: 'smooth' })
+  -->
+  <button class="to-top" id="toTop" aria-label="Volver arriba">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7M6 12l6-6 6 6"/></svg>
+  </button>
+
+  <!-- 
+    BOTÓN FLOTANTE DEL ASISTENTE GEMINI (ID: 'assistantToggle'):
+    - VARIABLE DEL DOM: Capturado en JS/api.js.
+    - ATRIBUTOS ACCESIBLES: 'aria-expanded' (true/false) y 'aria-controls="assistantPanel"'.
+    - FUNCIÓN ASOCIADA: AssistantChat.togglePanel() abre y cierra el panel de chat.
+  -->
+  <button class="assistant-fab" id="assistantToggle" aria-label="Abrir Asistente Técnico PCW" aria-expanded="false" aria-controls="assistantPanel">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2zm3 6v2h2v-2H7zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z"/></svg>
+    <span class="assistant-fab__label">Asistente técnico</span>
+  </button>
+
+  <!-- 
+    DIV (.assistant) — PANEL DEL ASISTENTE TÉCNICO (ID: 'assistantPanel'):
+    - VARIABLE DEL DOM: Capturado en JS/api.js.
+    - VARIABLE DE ESTADO: El atributo booleano 'hidden' se remueve o añade para controlar su visualización.
+  -->
+  <div class="assistant" id="assistantPanel" role="dialog" aria-modal="false" aria-labelledby="assistantTitle" hidden>
+
+    <!-- DIV (.assistant__head): Cabecera superior con título, indicador de estado y botón de cierre -->
+    <div class="assistant__head">
+      <!-- DIV: Contenedor vertical que alinea el título y el indicador "En línea" -->
+      <div>
+        <p class="assistant__title" id="assistantTitle">Asistente Técnico PCW</p>
+        <p class="assistant__status" id="assistantStatus">En línea</p>
+      </div>
+      <!-- 
+        BOTÓN CERRAR ASISTENTE (ID: 'assistantClose'):
+        - FUNCIÓN ASOCIADA: AssistantChat.close() cierra la ventana y devuelve el foco al botón flotante.
+      -->
+      <button class="assistant__close" id="assistantClose" aria-label="Cerrar chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- 
+      DIV (.assistant__messages) (ID: 'assistantMessages'):
+      - FUNCIÓN ESTRUCTURAL: Área con scroll vertical donde se inyectan las burbujas de diálogo.
+      - FUNCIÓN ASOCIADA: AssistantChat.appendMessage(rol, texto)
+    -->
+    <div class="assistant__messages" id="assistantMessages" role="log" aria-live="polite"></div>
+
+    <!-- 
+      DIV (.assistant__suggestions) (ID: 'assistantSuggestions'):
+      - FUNCIÓN ESTRUCTURAL: Agrupador Flexbox de botones de preguntas rápidas (chips).
+      - FUNCIÓN ASOCIADA: Al hacer clic en un .chip, su texto se envía automáticamente al asistente.
+    -->
+    <div class="assistant__suggestions" id="assistantSuggestions">
+      <button type="button" class="chip">Mi computadora no tiene internet.</button>
+      <button type="button" class="chip">Mi Wi-Fi está lento.</button>
+      <button type="button" class="chip">¿Qué servicios ofrece PCW?</button>
+      <button type="button" class="chip">¿Dónde están sus sucursales?</button>
+      <button type="button" class="chip">¿Qué productos tienen?</button>
+    </div>
+
+    <!-- 
+      DIV (.assistant__composer):
+      - FUNCIÓN ESTRUCTURAL: Barra inferior con el campo de texto y el botón de despacho.
+    -->
+    <div class="assistant__composer">
+      <label for="assistantInput" class="visually-hidden">Escribe tu consulta técnica</label>
+      <!-- 
+        INPUT (ID: 'assistantInput'):
+        - VARIABLE DEL DOM: Almacena la consulta que redacta el usuario.
+        - EVENTO ASOCIADO: Tecla 'Enter' o clic en el botón de envío.
+      -->
+      <input type="text" id="assistantInput" placeholder="Escribe tu consulta…" maxlength="500" autocomplete="off">
+      <!-- 
+        BOTÓN ENVIAR (ID: 'assistantSend'):
+        - FUNCIÓN ASOCIADA: AssistantChat.handleSubmit() despacha la consulta a la API de Gemini.
+      -->
+      <button type="button" class="assistant__send" id="assistantSend" aria-label="Enviar mensaje">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>
+      </button>
+    </div>
+
+    <!-- 
+      PÁRRAFO DE ALERTA DE ERROR (ID: 'assistantError'):
+      - VARIABLE DEL DOM: Inyecta mensajes de error accesibles (role="alert") en caso de falla de red.
+    -->
+    <p class="assistant__note" id="assistantError" role="alert"></p>
+  </div>
+
+</body>
+</html>
