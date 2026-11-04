@@ -1,4 +1,5 @@
-/* PCW — server.js
+/* =====================================================================
+   PCW — server.js
    Servidor Express de PC Wizard.
 
    Orden correcto de un servidor Express:
@@ -6,9 +7,10 @@
      2. Crear la app y los middlewares
      3. Registrar TODAS las rutas
      4. Manejo de errores (404 y 500)
-     5. app.listen()  ← siempre al final*/
+     5. app.listen()  ← siempre al final
+   ===================================================================== */
 
-/*1. Configuración y librerías  */
+/* ---------- 1. Configuración y librerías ---------- */
 require("dotenv").config();                         // primero: así todo lo demás ya ve las variables del .env
 
 const path = require("path");
@@ -19,12 +21,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 
-/*2. Middlewares*/
-app.use(express.json({ limit: "64kb" }));
+/* ---------- 2. Middlewares ---------- */
+app.use(express.json());
 
-// Permite que la página abierta con Live Server (puerto 5500) consulte la API.
-// Solo se aceptan esos orígenes locales; no se usan claves en el navegador.
-const ORIGENES_PERMITIDOS = ["http://127.0.0.1:5500", "http://localhost:5500"];
+// Sitios que pueden pedir datos a este servidor (CORS):
+//  · el dominio publicado en IONOS (con y sin www)
+//  · Live Server en tu computadora
+//  · y los que agregues en la variable ALLOWED_ORIGINS (separados por comas)
+const ORIGENES_PERMITIDOS = [
+  "https://pcwcr.com",
+  "https://www.pcwcr.com",
+  "http://pcwcr.com",
+  "http://www.pcwcr.com",
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  ...(process.env.ALLOWED_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean),
+];
 app.use("/api", (req, res, next) => {
   const origen = req.headers.origin;
   if (ORIGENES_PERMITIDOS.includes(origen)) {
@@ -38,68 +50,11 @@ app.use("/api", (req, res, next) => {
 });
 
 
-/*  3. Rutas  */
+/* ---------- 3. Rutas ---------- */
 
 // Verificar servidor
 app.get("/api/estado", (req, res) => {
   res.json({ estado: "OK", mensaje: "Servidor PCWizard funcionando" });
-});
-
-app.post("/api/assistant", async (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(503).json({ error: { message: "El asistente no está configurado en el servidor." } });
-  }
-
-  const { contents, system_instruction: systemInstruction } = req.body || {};
-  const hasTextParts = (parts, maxLength) =>
-    Array.isArray(parts) &&
-    parts.length > 0 &&
-    parts.every((part) => typeof part.text === "string" && part.text.length <= maxLength);
-  const validContents =
-    Array.isArray(contents) &&
-    contents.length > 0 &&
-    contents.length <= 13 &&
-    contents.every(
-      (item) =>
-        item &&
-        ["user", "model"].includes(item.role) &&
-        hasTextParts(item.parts, 12000)
-    );
-  const validSystemInstruction =
-    systemInstruction && hasTextParts(systemInstruction.parts, 4000);
-
-  if (!validContents || !validSystemInstruction || contents[contents.length - 1].role !== "user") {
-    return res.status(400).json({ error: { message: "La solicitud del asistente no es válida." } });
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-  try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          system_instruction: systemInstruction,
-          contents,
-          generationConfig: { maxOutputTokens: 2048 },
-        }),
-        signal: controller.signal,
-      }
-    );
-    const data = await response.json();
-    return res.status(response.status).json(data);
-  } catch (error) {
-    console.error("[Gemini] No se pudo completar la solicitud:", error.message);
-    return res.status(502).json({ error: { message: "No se pudo conectar con el asistente." } });
-  } finally {
-    clearTimeout(timeoutId);
-  }
 });
 
 // Verificar módulo Outlet
@@ -121,9 +76,10 @@ app.use("/CSS", express.static(path.join(__dirname, "CSS"), OPCIONES_ESTATICAS))
 app.use("/JS", express.static(path.join(__dirname, "JS"), OPCIONES_ESTATICAS));
 app.use("/IMG", express.static(path.join(__dirname, "IMG"), OPCIONES_ESTATICAS));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/proyectos.html", (req, res) => res.sendFile(path.join(__dirname, "proyectos.html")));
 
 
-/*  4. Manejo de errores */
+/* ---------- 4. Manejo de errores ---------- */
 
 // Ruta de la API que no existe → respuesta JSON (en vez de "Cannot GET")
 app.use("/api", (req, res) => {
@@ -137,7 +93,7 @@ app.use((err, req, res, next) => {
 });
 
 
-/*  5. Iniciar servidor (siempre al final)  */
+/* ---------- 5. Iniciar servidor (siempre al final) ---------- */
 const servidor = app.listen(PORT, () => {
   console.log("================================");
   console.log("SERVIDOR PCWIZARD ACTIVO");
